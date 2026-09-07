@@ -1,0 +1,11 @@
+Инициализация...
+Тип нейронной сети изменен на Local NeuroNetwork (lnn)
+NeuroNetwork
+Инициализация Данных закончена...
+
+/load
+Unhandled exception. System.FormatException: The input string '/load' was not in a correct format.
+   at System.Number.ThrowFormatException[TChar](ReadOnlySpan`1 value)
+   at System.Int32.Parse(String s)
+   at Model.Model.AnotherRouter(String input) in C:\Users\964\All-project\Project-AI\Model.cs:line 138
+   at Model.Model.Main() in C:\Users\964\All-project\Project-AI\Model.cs:line 70

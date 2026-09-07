@@ -1,0 +1,12 @@
+# Временные файлы сборки .NET
+[Bb]in/
+[Oo]bj/
+
+[Ll]erneds/
+[Dd]ata/
+[Ee]mpty/
+[Tt]rash/
+
+# Персональные настройки Visual Studio / VS Code
+*.user
+.vscode/
