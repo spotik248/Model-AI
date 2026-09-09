@@ -3,7 +3,8 @@
 using static Model.Write;
 using static Model.Mist;
 using static Model.Library;
-using static Model.NN;
+using static Model.NManage;
+using static Model.Learn;
 using static Model.Global;
 
 namespace Model;
@@ -20,7 +21,7 @@ static class NAnalis
 
         string[] tokens = MyString.TextRegex(@"\w+|[^\w\s]", input).Split(' ');
 
-        MsgLine($"\nТекст: {input}", $"\nText: {input}");
+        MsgLine($"Текст: {input}", $"\nText: {input}\n");
         //CheckIt($"\nСлово '{tokens[0]}' Условие исключения: {tokens.Length < 1}, {tokens[0] == ""}, {tokens[0] == " "} если всё False, то всё впорядке");
 
         //###  ИСКЛЮЧЕНИЕ  ###//
@@ -79,7 +80,7 @@ static class NAnalis
         
         // ### Получение ответа ### //
 
-        double[][]? answer = Learn(questVector, answerVector, learn);
+        double[][]? answer = Learning(questVector, answerVector, learn);
 
         // ### Формирование слов из double[][] ### //
 
@@ -89,7 +90,7 @@ static class NAnalis
             return;
         }
 
-        CheckIt("answer", answer);
+        //CheckIt("answer", answer);
 
         var (percentMean, indexWords, indexAnswer) = GetMeanNew(answer, 0.9); // Точность ответа в сотых (один процент)
         
@@ -104,7 +105,7 @@ static class NAnalis
         Post(percentMean, indexWords, indexAnswer, questVector);
     }
 
-    public static double[][]? Learn(double[][] questVector, double[][]? answerVector, bool learn)
+    public static double[][]? Learning(double[][] questVector, double[][]? answerVector, bool learn)
     {
         double[][]? answer = Init.Double<double>(size, dimension);
 
@@ -112,9 +113,7 @@ static class NAnalis
         {
             MsgLine("Обучение нейронной сети...");
 
-
-            SetLearnEpoch(1, 100);
-            SetBatch(1);
+            SetFull(1, 100, 1);
 
             double[][] Errors = new double[epoches][];
 
@@ -320,8 +319,7 @@ static class NAnalis
         return finallyAnswer;
     }
 
-    public static void SetBatch(int batches) => NN.SetBatch(batches);
-    public static double[][]? Predict(double[][] quest) => NN.Predict(quest);
-    public static double[]? Study(double[][] input, double[][] output) => NN.Study(input, output);
+    public static double[][]? Predict(double[][] quest) => Learn.Predict(quest);
+    public static double[]? Study(double[][] input, double[][] output) => Learn.Study(input, output);
 
 }

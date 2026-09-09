@@ -208,7 +208,7 @@ public static class Vector
 
     public static double[][] ToMatrix(double[] mas, int dimension)
     {
-        if(mas.Length / dimension != 1)
+        if(mas.Length / dimension != Math.Round(mas.Length / dimension))
             Write.Exc($"Размеры не подходят для перевода в матрицу:\n{mas.Length} / {dimension} = {mas.Length / dimension} должно быть целым числом (Integer)");
 
         double[][] result = Init.Double<double>(mas.Length / dimension, dimension);

@@ -2,6 +2,8 @@
 
 using static Model.Write;
 using static Model.Library;
+using static Model.NManage;
+using static Model.Learn;
 using static Model.Global;
 
 namespace Model;
@@ -174,10 +176,8 @@ static class NeuroPocketAnalis
     {
         MsgLine("Обучение нейронной сети...");
 
-        NN.SetLearnEpoch(1, 1000);
-        NN.SetBatch(questVectors.Length);
+        SetFull(1, 1000, questVectors.Length);
         
-
         for (int epoch = 0; epoch < epoches; epoch++)
         {
             for (int pocket = 0; pocket < questVectors.Length; pocket++)
@@ -208,7 +208,7 @@ static class NeuroPocketAnalis
                         Errors[epoch] = errors;
 
                         //MoveVectorWords(Matrix.Combinate(questVector, answerVector));
-                        NN.UseUpdateLearningRate(3, errors, epoch);
+                        UseUpdateLearningRate(3, errors, epoch);
                     }
                     catch (Exception ex)
                     {
@@ -224,8 +224,7 @@ static class NeuroPocketAnalis
         Line($"Обучение на {epoches} эпох и {questVectors.Length} пакетов закончена");
     }
 
-    public static void SetBatch(int batches) => NN.SetBatch(batches);
-    public static double[][]? Predict(double[][] input) => NN.Predict(input);
-    public static double[]? Study(double[][] input, double[][] output) => NN.Study(input, output);
+    public static double[][]? Predict(double[][] input) => Learn.Predict(input);
+    public static double[]? Study(double[][] input, double[][] output) => Learn.Study(input, output);
 
 }

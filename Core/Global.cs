@@ -10,9 +10,7 @@ internal class Global
 {
     #pragma warning disable CS8618
 
-    #region Init
-
-    public static void Init() // dotnet build -c Release
+    public static void Start()
     {
         isBegin = false;
         Line("Инициализация...");
@@ -20,19 +18,19 @@ internal class Global
         // Модель
 
         // Библиотека
-        Library.InitWords(100, 10); // 100 слов по 10 размера
+        // Library.InitWords(100, 10); // 100 слов по 10 размера
         // Обучение
-        InitLearn();
+        // Learn.Start();
         // Файловая система
-        InitFileSystem();
+        // FileSystem.Start();
         // Форма
-        InitForm();
+        // CanvasManage.Start();
         // Нейронная сеть
-        NN.InitNN(100);
+        // NManage.Start(100);
 
-        Msg("#####################");
-        Msg("##### NEW START #####");
-        Msg("#####################");
+        Msg("##########XXXXXXXXXXX##########");
+        Msg("########## NEW START ##########");
+        Msg("##########XXXXXXXXXXX##########");
         
         MsgLine("Инициализация Данных закончена...");
 
@@ -46,141 +44,7 @@ internal class Global
     //public static Cmd[] cmds;
     public static Dictionary<string, object> variable;
 
-    //
-
-    #region Model
-    
-
-    
-
-    #endregion
-
-    #region Library
-
-    //public static Word[] words => Library.words;
-
-
-    
-    
-    #endregion
-
-    #region Learn
-    
-    public static bool fixedLearningRate;
-    public static double startLR;
-    public static double learningRate;
-    public static double minLR;
-    public static int epoches;
-    public static object[] learn;
-
-    static void InitLearn() // Обучение 
-    {
-        fixedLearningRate = false;
-        startLR = 0.5;
-        learningRate = startLR;
-        minLR = 1E-40;
-        epoches = 1;
-
-        NN.SetLearnEpoch(learningRate, epoches);
-
-        learn = [fixedLearningRate, startLR, learningRate, minLR, epoches];
-    }
-
-    #endregion
-
-    #region FileSystem
-
-    public static string[][] reFolder;
-    public static Dictionary<string, string> folders { get; private set; } = [];
-    public static string[][] reFiles;
-    public static Dictionary<string, string> files { get; private set; } = [];
-    public static string[] getFiles;
-    public static string[][] sortedFiles;
-
-    static void InitFileSystem() // Папки и файлы
-    {
-        folders = [];
-
-        reFolder = [
-            ["data", @"data"],
-            ["nn_data", @"data\NNdata"],
-            ["logs", @"logs"],
-            ["sounds", @"sounds"],
-            ["learnPocket", @"learnPocket"]
-        ];
-
-        foreach (var f in reFolder) // запись начальных папок в folders
-            folders.Add(f[0], Util.RootCombine(f[1]));
-
-        Util.CreateFolders(folders.Values.ToArray()); // Создание папок из "значений" folders
-
-        files = [];
-
-        reFiles = [
-            ["setting", @"Setting.json"],
-            ["data", @"data\Data.json"],
-            ["model_data", @"data\ModelData.json"],
-            ["words_data", @"data\WordsData.json"],
-            ["lib_data", @"data\LibData.json"],
-            ["learn_data", @"data\LearnData.json"],
-            ["lnn_data", @"data\NNdata\LNNData.json"],
-            ["fnn_data", @"data\NNdata\FNNData.json"],
-            ["vnn_data", @"data\NNdata\VNNData.json"],
-            ["nn_data", @"data\NNdata\NNData.json"],
-            ["tnn_data", @"data\NNdata\TNNData.json"],
-            ["memory_data", @"data\NNdata\MemoryData.json"],
-            ["line_write", @"logs\LineWrite.txt"],
-            ["line_color", @"logs\LineColor.txt"],
-            ["read_line", @"logs\ReadLine.bat"],
-            ["read_color", @"logs\ReadColor.bat"]
-        ];
-
-        foreach (var f in reFiles) // запись начальных файлов в files
-            files.Add(f[0], Util.RootCombine(f[1]));
-
-        Util.CreateFiles(files.Values.ToArray()); // Создание файлов из "значений" files
-
-        getFiles = Util.GetFiles(Util.root, "*", SearchOption.AllDirectories);
-        sortedFiles = Util.SortExtensionFiles(getFiles);
-    }
-
-    #endregion
-
-    #region Form
-
-    public static Canvas canvas;
-    public static bool startForm;
-    public static bool startUpdate;
-    public static int widthScreen => Window.widthScreen;
-    public static int heightScreen => Window.heightScreen;
-    public static int widthForm;
-    public static int heightForm;
-    public static bool updateFrame;
-
-    static void InitForm() // Форма
-    {
-        canvas ??= new Canvas();
-
-        startForm = false;
-        startUpdate = false;
-
-        widthForm = 1920;
-        heightForm = 1080;
-
-        if (widthScreen <= 0 || heightScreen <= 0)
-            Throw($"An alone screen size are zero: {widthScreen}x{heightScreen}");
-    }
-
-    #endregion
-
-    #region NN
-
-    
-    #endregion
-
     #pragma warning restore CS8618
-
-    #endregion
 
 
     public async static Task IsBeginAsync()
@@ -193,30 +57,6 @@ internal class Global
         while (isBegin == false) Thread.Sleep(100); // Ждем загрузки Global
     }
     
-
-    public async static void StartForm()
-    {
-        OpenTK.Windowing.Desktop.GLFWProvider.CheckForMainThread = false;
-
-        IsBegin();
-
-        Thread threadForm = new(() =>
-        {
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
-            ApplicationConfiguration.Initialize();
-            canvas = new();
-            Application.Run(canvas);
-        });
-
-        threadForm.SetApartmentState(ApartmentState.STA); // Без этого Canvas.Designer.cs не сработает
-        threadForm.Start();
-
-        await WaitLoadThreadForm(threadForm);
-        
-        Line("Окно запущено.");
-    }
-
     public static async Task WaitLoadThreadForm(Thread threadForm)
     {
         while (!threadForm.IsAlive || Application.OpenForms.Count <= 0)
@@ -252,7 +92,7 @@ internal class Global
     public static string CombineFull(string color, string type) => $"[{Color[color]}{type}{Color[color]}]";
     public static string Combine(string color, string type) => $"[{Color[color]}{type}{Color[""]}]";
     public static string Combine(string type) => $"[{type}]";
-    
+
     public static Dictionary<string, string> Color = new()
     {
         {"", "\x1b[0m"},
@@ -336,5 +176,5 @@ internal class Global
         WM_RBUTTONUP = 0x0205,
         WM_MBUTTONUP = 0x0208
     }
-    
+
 }

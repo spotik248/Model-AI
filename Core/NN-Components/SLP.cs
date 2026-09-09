@@ -2,7 +2,8 @@
 
 using static Model.Write;
 using static Model.Library;
-using static Model.NN;
+using static Model.NManage;
+using static Model.Learn;
 
 namespace Model;
 
@@ -18,7 +19,7 @@ public class SLP : INeuroComponent
     
     private static int size => size;
     private static int dimension => dimension;
-    private static double learningRate = Global.learningRate; // Пока что (иначе придется создавать для каждого отдельный MLP, пока мне так не надо)
+    private static double learningRate => Learn.learningRate;
 
     public double[][] firstLayout; public double[][] secondLayout;
     public double[][] actFirstLayout; public double[][] actSecondLayout;

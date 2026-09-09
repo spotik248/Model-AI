@@ -2,7 +2,7 @@ using System.Diagnostics;
 using System.Reflection;
 //using System.IO;
 
-//using static Model.Global; //TODO: Не будет ли перегрузки стека?
+//using static Model.Global; //Не будет ли перегрузки стека?
 
 namespace Model;
 
@@ -14,10 +14,10 @@ public static class Write
     
     private const bool DEV = Global.DEV;
     public static bool writeCheckIt = DEV;
-    public static string WriteLog => Global.files["line_write"];
-    public static string ColorLog => Global.files["line_color"];
-    public static string BatWriteLog => Global.files["read_line"];
-    public static string BatColorLog => Global.files["read_color"];
+    public static string WriteLog => FileSystem.GetPathFile("line_write");
+    public static string ColorLog => FileSystem.GetPathFile("line_color");
+    public static string BatWriteLog => FileSystem.GetPathFile("read_line");
+    public static string BatColorLog => FileSystem.GetPathFile("read_color");
 
     public static Dictionary<string, string> Color => Global.Color;
     public static Dictionary<string, string> Comb => Global.Comb;
@@ -60,6 +60,7 @@ public static class Write
     // Если ввод только msg, то object?. Если кроме msg есть еще что-то то object.
 
     public static void Clear() => Console.Clear();
+    public static void Space() => Console.WriteLine();
     public static void Line(object? msg) => Console.WriteLine(msg);
     public static void Line(params object[] msg) => Console.WriteLine(string.Join("\n", msg));
     public static void LineAdd(object? msg) => Console.Write(msg);

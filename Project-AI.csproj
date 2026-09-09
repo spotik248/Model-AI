@@ -23,15 +23,10 @@
     <PackageReference Include="OpenTK" Version="4.8.2" />
     <PackageReference Include="OpenTK.GLControl" Version="4.0.2" />
     
-    <None Include="Sounds\Err.mp3">
+    <None Include="Core\Sounds\Err.mp3">
     <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Sounds\Err1.ogg">
-    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Sounds\Err2.ogg">
-    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+    
   </ItemGroup>
 
 </Project>

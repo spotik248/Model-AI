@@ -6,14 +6,15 @@ using OpenTK.GLControl;
 using OpenTK.Graphics.OpenGL4;
 
 using static Model.Write;
+using static Model.CanvasManage;
 using static Model.Global;
 
 namespace Model;
 
 public partial class Canvas : Form
 {  
-    public static int widthForm => Global.widthForm;
-    public static int heightForm => Global.heightForm;
+    public static int widthForm => widthForm;
+    public static int heightForm => heightForm;
     public static int widthScreen => Window.widthScreen;
     public static int heightScreen => Window.heightScreen;
     private GLControl glControl;

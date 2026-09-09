@@ -1,8 +1,10 @@
 //using System;
 
 using static Model.Write;
+using static Model.FileSystem;
 using static Model.Library;
-using static Model.NN;
+using static Model.NManage;
+using static Model.Learn;
 using static Model.Global;
 
 namespace Model;
@@ -12,15 +14,13 @@ class MSLU // Model Save Load Update
     
     public static void Save()
     {
+        Util.Save(GetPathFile("model_data"), Model.info);
 
-        string[] md = [Model.version, Model.description, Model.model, Model.user, Model.time];
-        Util.Save(files["model_data"], md);
+        Util.Save(GetPathFile("words_data"), words);
 
-        Util.Save(files["words_data"], words);
+        Util.Save(GetPathFile("learn_data"), learn); // CheckIt
 
-        Util.Save(files["learn_data"], learn); //
-
-        Util.Save(files["lnn_data"], (LNN)nn[0]);
+        Util.Save(GetPathFile("lnn_data"), (LNN)nn[0]);
     }
 
     // ["setting", @"Setting.json"],
@@ -40,14 +40,15 @@ class MSLU // Model Save Load Update
     {
 
         // ?? new string[md.Length]; //TODO: Если впринципе данные инициируются, то зачем нужно это?
-        string[] md = Util.Load<string[]>(files["model_data"], [Model.version, Model.description, Model.model, Model.user, Model.time]);
+        string[] md = Util.Load(GetPathFile("model_data"), Model.info);
+
         Model.model = md[2]; Model.user = md[3];
         
-        words = Util.Load(files["words_data"], words);
+        words = Util.Load(GetPathFile("words_data"), words);
 
         //lib = Util.Load(files["lib_data"], lib);
 
-        //learn = Util.Load(files["learn_data"], learn); // TODO: Ломал раньше, теперь лучше, но на всякий случай вырубил
+        //learn = Util.Load(files["learn_data"], learn);
 
         nn[0] = Util.Load(files["lnn_data"], (LNN)nn[0]);
     }

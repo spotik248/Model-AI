@@ -1,5 +1,7 @@
 //using System;
 using static Model.Write;
+using static Model.NManage;
+using static Model.Learn;
 using static Model.Global;
 
 namespace Model;
@@ -9,7 +11,9 @@ public static class Library
     public static Word[] words = [];
     public static int dimension;
 
-    public static void InitWords(int wordsLength, int dimension)
+    static Library() => Start(100, 10);
+
+    public static void Start(int wordsLength, int dimension)
     {
         words = new Word[wordsLength];
         Library.dimension = dimension;
@@ -85,8 +89,8 @@ public static class Library
 
         //CheckIt("id.Length", id.Length); CheckIt("error.Length", error.Length);
 
-        if(id.Length != error.Length)
-            Exc("Количество айди не соответствует длине ошибок.");
+        if(id.Length != error.Count())
+            Exc($"Количество айди не соответствует длине ошибок: {id.Length} != {error.Count()}");
 
         Word[] words = IdToWord(id);
 

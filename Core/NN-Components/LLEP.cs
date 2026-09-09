@@ -2,7 +2,7 @@
 
 using static Model.Write;
 using static Model.Library;
-using static Model.NN;
+using static Model.NManage;
 
 namespace Model;
 

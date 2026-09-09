@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2026  [Ваше Имя / Никнейм]
+﻿// Copyright (C) 2026  [spotik248 / spotik248@gmail.com]
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,7 @@ using static Model.MSLU;
 using static Model.Global;
 
 
-//dotnet build -c Release
+// dotnet build -c Release
 
 
 namespace Model;
@@ -33,53 +33,76 @@ class Model
     public static string model = "Модель";
     public static string user = "Пользователь";
     public static string time = Computer.Time();
-
+    public static string[] info => [version, description, model, user, time];
     
     internal static void Main()
     {
-        InitGlobal();
-        //Update(false); Update(true);
+        AppDomain.CurrentDomain.UnhandledException += (sender, args) => {
+            // Код сработает при любой неперехваченной ошибке
 
-        
-        if(!DEV) Dialog(); //TODO: Включить при пользовании пользователем
+            // Получаем объект самого исключения
+            Exception e = (Exception)args.ExceptionObject;
+
+            try
+            {
+                Throw("Произошла ошибка: "+sender);
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine("Произошла ошибка: "+sender);
+                Console.WriteLine("\nЛог не работает: "+ex);
+                Thread.Sleep(1000);
+                Environment.Exit(0);
+            }
+
+            // Флаг IsTerminating показывает, закрывается ли приложение (почти всегда true)
+            if (args.IsTerminating)
+            {
+                // Программа завершается без вывода стандартного системного текста ошибки
+                Environment.Exit(1);
+            }
+        };
+
+        Core();
+    }
+
+#pragma warning disable CS0162 // Unreachable code detected
+
+    internal static void Core()
+    {
+        Start();
+
+        // Включить для быстрых диалогов и выбора
+
+        if (false) Dialog();
+
 
 
         while (!finished)
         {
+            //Функции перед вводом пользователя
+
+
             EscPush();
             if(finished) break;
 
-            //Update(false);
-            if(startForm) StartForm();
+            if(CanvasManage.startForm) CanvasManage.StartForm();
 
 
-            //Функции перед вводом пользователя
+            //Действия
             
-
             Line("");
             string input = Util.UnExcConsoleRead(); // Никогда не null
 
+            // FOR DEVELOPERS, DISABLE IT
+            if(false) AnotherRouter(input);
             
-            if(false)
-            {
-                if(!DEV)
-                {
-                    try
-                    {
-                        Router(input);
-                    }
-                    catch(Exception ex)
-                    {
-                        Throw("Непредвиденная ошибка одного из маршрутизаторов Модели: ", ex);   
-                    }
-                }
-                else Router(input);
-            }
-            else AnotherRouter(input);
-            
+            Router(input);
+
 
             //Функции после ввода пользователя
-            //Update(true);
+            
+
         }
         
         //Save();
@@ -89,6 +112,7 @@ class Model
         Environment.Exit(0);
     }
 
+#pragma warning restore CS0162 // Unreachable code detected
 
     public static void Dialog()
     {
@@ -97,16 +121,17 @@ class Model
         QuestYesNo("Загрузить последнее сохранение?", Load, () => {Line("\nСтандартная загрузка");});
 
         Thread.Sleep(100);
-
+        
         Quest("Какую нейронную сеть использовать?",
-            [["л", "локальная"], ["ф", "функциональная"], ["в", "векторную"], ["т", "трансформер"]],
+        [["л", "локальная"], ["ф", "функциональная"], ["в", "векторную"], ["т", "трансформер"]],
             [
-                () => NN.Change(0),
-                () => NN.Change(1),
-                () => NN.Change(2),
-                () => NN.Change(3)
+                () => NManage.Change(0),
+                () => NManage.Change(1),
+                () => NManage.Change(2),
+                () => NManage.Change(3)
             ]
         );
+        
 
         Command.GetModel(0);
 
@@ -1228,50 +1253,58 @@ class Model
 
             int size = 5;
             int sizedim = size * dimension * 2; // 100
-            int size2 = (int)Math.Pow2(size); // 25
+            int size3 = sizedim * 3; // 300
 
             double[] inputLayout = Vector.ToSize(Init.Randomized((size-1) * dimension), sizedim); // sizedim x100
             //double[] inputLayout = Init.Zeros(size * 2);
 
             double[] view = Init.Full(0.5, sizedim); // x100
 
-            double[] data = Init.Zeros(sizedim*3); // x100*3 // Вся информация (сенсоры + эмоции)
+            double[] data = Init.Zeros(size3); // x100*3 // Вся информация (сенсоры + эмоции)
 
 
-            double[][] shortTermMemory = Init.Zeros(1, sizedim*3); // 1x100 * 3 // кр.ср.память (куча данных)
+            double[][] shortTermMemory = Init.Zeros(1, size3); // 1x100 * 3 // кр.ср.память (куча данных)
 
 
-            double[] Future   = Init.Zeros(sizedim*3);   // x100 * 3 // для будущего
-            double[] fromFuture = Init.Zeros(sizedim*3); // x100 * 3 // из будущего
+            double[] Future   = Init.Zeros(size3);   // x100 * 3 // для будущего
+            double[] fromFuture = Init.Zeros(size3); // x100 * 3 // из будущего
 
-            double[][] widthf1 = Init.Xavier(sizedim*3, sizedim); // 100*3x100
+            double[][] widthf1 = Init.Xavier(size3, sizedim); // 100*3x100
             double[] biasf1    = Init.Zeros(sizedim);               // x100
 
-            double[][] widthf2 = Init.Xavier(sizedim, sizedim*3); // 100x100*3
-            double[] biasf2    = Init.Zeros(sizedim*3);           // x100*3
+            double[][] widthf2 = Init.Xavier(sizedim, size3); // 100x100*3
+            double[] biasf2    = Init.Zeros(size3);           // x100*3
 
-            double[] emotion    = Init.Full(0.5, sizedim*3);   // Эмоция, то же что и предсказание
+            double[] emotion    = Init.Full(0.5, size3);   // Эмоция, то же что и предсказание
 
 
             int maxLogWriteMemory = 10; //
-            double[][] logWriteMemory = Init.Zeros(maxLogWriteMemory, sizedim*3);  // Для записи в дл.ср.память
+            double[][] logWriteMemory = Init.Zeros(maxLogWriteMemory, size3);  // Для записи в дл.ср.память
 
 
-            double[] lastEmotion       = Init.Zeros(sizedim*3);
-            double[] lastEmHiddenError = Init.Zeros(sizedim*3);
+            double[] lastEmotion       = Init.Zeros(size3);
+            double[] lastEmHiddenError = Init.Zeros(size3);
 
 
-            double[][] width1 = Init.Xavier(sizedim, size2); // 100x25
-            double[] bias1    = Init.Zeros(size2);           // x25
+            double[][] widthm1 = Init.Xavier(size3, sizedim); // 300x100
+            double[] biasm1    = Init.Zeros(sizedim);         // x100
 
-            double[][] width2 = Init.Xavier(size2, sizedim); // 25x100
-            double[] bias2    = Init.Zeros(sizedim);         // x100
+            double[][] widthm2 = Init.Xavier(sizedim, size3); // 100x300
+            double[] biasm2    = Init.Zeros(size3);           // x300
 
-            
-            double[] longTermMemory = Init.Zeros(sizedim);  // Долгосрочная память, сжимает по признакам
-            double[] autoMemory = Init.Zeros(sizedim);      // Процедурная память, используется при автоматизме
+            double[] longTermMemory = Init.Zeros(size3);      // x300 // Долгосрочная память, сжимает по признакам
 
-            double[] target   = Vector.ToSize(Init.Randomized((size-2) * dimension), sizedim); // sizedim
+
+            double[][] widtha1 = Init.Xavier(size3, sizedim); // 300x100
+            double[] biasa1    = Init.Zeros(sizedim);         // x100
+
+            double[][] widtha2 = Init.Xavier(sizedim, size3); // 100x300
+            double[] biasa2    = Init.Zeros(size3);           // x300
+
+            double[] autoMemory = Init.Zeros(size3);          // x300 // Процедурная память, используется при автоматизме
+
+
+            double[] target   = Vector.ToSize(Init.Randomized((size-2) * dimension), size3); // sizedim
 
 
             double[] lastError       = Init.Zeros(sizedim);
@@ -1373,6 +1406,88 @@ class Model
 
                 shortTermMemory[0] = data; // Сохранение данных в кр.ср.память
 
+                // Условие новизны
+                double conditionNew = Math.Abs(Vector.AddAll(emotion));
+                bool conditionNewBool = conditionNew > 0.2;
+
+                // Сохранение в дневной лог, для последующего обучения
+                if(logWriteMemory.Count() != logWriteMemory.Length && conditionNewBool)
+                    logWriteMemory[logWriteMemory.Count()] = shortTermMemory[0];
+
+                
+
+                // Условие новизны
+
+                CheckIt("Условие новизны: "+conditionNew);
+                if(conditionNewBool)
+                {
+                    // Этап мышления
+                    
+                    double[] inputThinkLayout = data;
+
+                    double[] hiddenThinkLayout = Init.Zeros(widthm1[0].Length);
+                    for(int i = 0; i < widthm1[0].Length; i++)
+                    {
+                        double mem = 0;
+                        for(int j = 0; j < inputThinkLayout.Length; j++)
+                            mem += inputThinkLayout[j] * widthm1[j][i];
+
+                        hiddenThinkLayout[i] = FucAct.Sigmoid(mem + biasm1[i]);
+                    }
+                    CheckIt("hiddenThinkLayout", hiddenThinkLayout);
+
+                    double[] outputThinkLayout = Init.Zeros(widthm2[0].Length);
+                    for(int i = 0; i < widthm2[0].Length; i++)
+                    {
+                        double mem = 0;
+                        for(int j = 0; j < hiddenThinkLayout.Length; j++)
+                            mem += hiddenThinkLayout[j] * widthm2[j][i];
+
+                        outputThinkLayout[i] = FucAct.Sigmoid(mem + biasm2[i]);
+                    }
+                    CheckIt("outputThinkLayout", outputThinkLayout);
+
+                    double[] answer = outputThinkLayout;
+                }
+                else
+                {
+                    // Этап автоматизма
+                    
+                    double[] inputAutoLayout = data;
+
+                    double[] hiddenAutoLayout = Init.Zeros(widtha1[0].Length);
+                    for(int i = 0; i < widtha1[0].Length; i++)
+                    {
+                        double mem = 0;
+                        for(int j = 0; j < inputAutoLayout.Length; j++)
+                            mem += inputAutoLayout[j] * widtha1[j][i];
+
+                        hiddenAutoLayout[i] = FucAct.Sigmoid(mem + biasa1[i]);
+                    }
+                    CheckIt("hiddenAutoLayout", hiddenAutoLayout);
+
+                    double[] outputAutoLayout = Init.Zeros(widtha2[0].Length);
+                    for(int i = 0; i < widtha2[0].Length; i++)
+                    {
+                        double mem = 0;
+                        for(int j = 0; j < hiddenAutoLayout.Length; j++)
+                            mem += hiddenAutoLayout[j] * widtha2[j][i];
+
+                        outputAutoLayout[i] = FucAct.Sigmoid(mem + biasa2[i]);
+                    }
+                    CheckIt("outputAutoLayout", outputAutoLayout);
+
+
+
+                }
+                // #########
+
+ 
+
+                // ##### В СОН #####
+
+
+
                 double[] emDelta = Vector.Mult(emotion, FucAct.DSigmoid(fromFuture));
                 CheckIt("emDelta", emDelta);
                 CheckIt("(emotion) outputLayout, DSigmoid", [fromFuture, FucAct.DSigmoid(fromFuture)]);
@@ -1424,89 +1539,19 @@ class Model
                 lastEmotion = emotion;
                 lastEmHiddenError = emHiddenError;
 
-                // Условие новизны
 
-                CheckIt("Условие новизны: "+Vector.AddAll(emotion));
-                if(Vector.AddAll(emotion) > 0.2)
-                {
-                    // Этап мышления
-                    
 
-                    double[] hiddenLayout = Init.Zeros(width1[0].Length);
-                    for(int i = 0; i < width1[0].Length; i++)
-                    {
-                        double mem = 0;
-                        for(int j = 0; j < inputLayout.Length; j++)
-                            mem += inputLayout[j] * width1[j][i];
-
-                        hiddenLayout[i] = FucAct.Sigmoid(mem + bias1[i]);
-                    }
-                    CheckIt("hiddenLayout", hiddenLayout);
-
-                    double[] outputLayout = Init.Zeros(width2[0].Length);
-                    for(int i = 0; i < width2[0].Length; i++)
-                    {
-                        double mem = 0;
-                        for(int j = 0; j < hiddenLayout.Length; j++)
-                            mem += hiddenLayout[j] * width2[j][i];
-
-                        outputLayout[i] = FucAct.Sigmoid(mem + bias2[i]);
-                    }
-                    CheckIt("outputLayout", outputLayout);
+                // double stud = 1.0/(1.0 + 0.1 * p); //double stud = 1.0/p;
+                // CheckIt("stud", [stud, p]);
 
 
 
-                }
-                else
-                {
-                    // Этап автоматизма
-                    
+                // double[] error = Vector.Sub(outputLayout, target); //a - t
+                // CheckIt("error", error);
 
-                    double[] hiddenLayout = Init.Zeros(width1[0].Length);
-                    for(int i = 0; i < width1[0].Length; i++)
-                    {
-                        double mem = 0;
-                        for(int j = 0; j < inputLayout.Length; j++)
-                            mem += inputLayout[j] * width1[j][i];
-
-                        hiddenLayout[i] = FucAct.Sigmoid(mem + bias1[i]);
-                    }
-                    CheckIt("hiddenLayout", hiddenLayout);
-
-                    double[] outputLayout = Init.Zeros(width2[0].Length);
-                    for(int i = 0; i < width2[0].Length; i++)
-                    {
-                        double mem = 0;
-                        for(int j = 0; j < hiddenLayout.Length; j++)
-                            mem += hiddenLayout[j] * width2[j][i];
-
-                        outputLayout[i] = FucAct.Sigmoid(mem + bias2[i]);
-                    }
-                    CheckIt("outputLayout", outputLayout);
-
-
-
-                }
-                // #########
-
-
-                
-
-                // ##### В СОН #####
-
-                //double stud = 1.0/(1.0 + 0.1 * p); 
-                //CheckIt("stud", [stud, p]);
-
-                //double stud = 1.0/p;
-                //CheckIt("stud", [stud, p]);
-
-                //double[] error = Vector.Sub(outputLayout, target); //a - t
-                //CheckIt("error", error);
-
-                //double[] Delta = Vector.Mult(error, FucAct.DSigmoid(outputLayout));
-                //CheckIt("Delta", Delta);
-                //CheckIt("outputLayout, DSigmoid", [outputLayout, FucAct.DSigmoid(outputLayout)]);
-
+                // double[] Delta = Vector.Mult(error, FucAct.DSigmoid(outputLayout));
+                // CheckIt("Delta", Delta);
+                // CheckIt("outputLayout, DSigmoid", [outputLayout, FucAct.DSigmoid(outputLayout)]);
 
 
 
@@ -1520,7 +1565,7 @@ class Model
                 //         // Передаем влияние дельты обратно через веса
                 //         sumFeedback += Delta[j] * width2[i][j];
                 //     }
-                //     hiddenError[i] = sumFeedback * FucAct.DSigmoid(hiddenLayout[i]); // без DSigmoid
+                //     hiddenError[i] = sumFeedback * FucAct.DSigmoid(hiddenLayout[i]); // С DSigmoid()
                 // }
                 // CheckIt("hiddenError", hiddenError);
 
@@ -1576,15 +1621,6 @@ class Model
         }
     }
     
-    private static void InitGlobal()
-    {
-        try{
-            Init();
-        } catch(Exception ex) {
-            Throw("Непредвиденная ошибка загрузки начальных данных, продолжение невозможно: ", ex);
-        }
-    }
-
     private static void EscPush()
     {
         if (Console.KeyAvailable)

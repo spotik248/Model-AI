@@ -2,6 +2,8 @@ using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 
+using static Model.CanvasManage;
+
 namespace Model;
 
 public static class Mouse
@@ -85,19 +87,19 @@ public static class Mouse
     // Методы для управления мышью
     public static void MoveMouseTo(int x, int y)
     {
-        SetCursorPos(x, Global.heightScreen - y);
+        SetCursorPos(x, heightScreen - y);
     }
 
     public static void LeftClickAt(int x, int y)
     {
-        SetCursorPos(x, Global.heightScreen - y);
-        mouse_event(MOUSEEVENTF_LEFTDOWN | MOUSEEVENTF_LEFTUP, (uint)x, (uint)(Global.heightScreen - y), 0, IntPtr.Zero);
+        SetCursorPos(x, heightScreen - y);
+        mouse_event(MOUSEEVENTF_LEFTDOWN | MOUSEEVENTF_LEFTUP, (uint)x, (uint)(heightScreen - y), 0, IntPtr.Zero);
     }
 
     public static void RightClickAt(int x, int y)
     {
-        SetCursorPos(x, Global.heightScreen - y);
-        mouse_event(MOUSEEVENTF_RIGHTDOWN | MOUSEEVENTF_RIGHTUP, (uint)x, (uint)(Global.heightScreen - y), 0, IntPtr.Zero);
+        SetCursorPos(x, heightScreen - y);
+        mouse_event(MOUSEEVENTF_RIGHTDOWN | MOUSEEVENTF_RIGHTUP, (uint)x, (uint)(heightScreen - y), 0, IntPtr.Zero);
     }
 
     [StructLayout(LayoutKind.Sequential)]

@@ -2,13 +2,14 @@
 
 using static Model.Write;
 using static Model.Library;
-using static Model.NN;
+using static Model.NManage;
+using static Model.Learn;
 
 namespace Model;
 
 public static class LLE // Layout Local Error
 {
-    public static double stud = Global.learningRate;
+    public static double stud => Learn.learningRate;
     
 
     // Самый обычный слой в перцептроне

@@ -1,8 +1,11 @@
 //using System;
 
 using static Model.Write;
+using static Model.FileSystem;
+using static Model.CanvasManage;
 using static Model.Library;
-using static Model.NN;
+using static Model.NManage;
+using static Model.Learn;
 using static Model.Global;
 
 namespace Model;
@@ -94,7 +97,7 @@ class Command
                 "reload", "Перезагружает данные.", type++,
                 [
                     ' ', $"Перезагружает данные Модели, но не начинает диалоговые окна.",
-                    () => {Line("Перезагрузка..."); Init();}
+                    () => {Line("Перезагрузка..."); Global.Start();}
                 ]
             ),
             // Нейронка, возможности и тп.
@@ -102,11 +105,11 @@ class Command
                 "change", "Изменяет тип нейронной сети.", type,
                 [
                     ' ', $"Меняет на следующий тип.",
-                    () => {NN.Next();}
+                    () => {Next();}
                 ],
                 [
                     'n', $"Меняет на n-ый тип.",
-                    (string[] arg) => {NN.Change(arg[0]);}
+                    (string[] arg) => {Change(arg[0]);}
                 ]
             ),
             new( // learn
@@ -120,7 +123,7 @@ class Command
                 "window", "Запускает графическое окно.", type,
                 [
                     ' ', $"Запускает графическое окно работающее на OpenGL4.",
-                    () => {Global.StartForm();}
+                    () => {CanvasManage.StartForm();}
                 ]
             ),
             new( // updateframe
@@ -387,12 +390,12 @@ class Command
             // Начальные
             case "help": GetHelp(arg); break;
             case "restart": MsgLine("Рестарт..."); Model.Main(); break;
-            case "reload":  MsgLine("Перезагрузка..."); Init(); break;
+            case "reload":  MsgLine("Перезагрузка..."); Global.Start(); break;
 
             // Нейронка, возможности и тп.
-            case "change":  NN.Next(); break;
+            case "change":  Next(); break;
             case "learn":   NeuroPocketAnalis.General(); break;
-            case "window":  Global.StartForm(); break;
+            case "window":  StartForm(); break;
             case "updateFrame": canvas.UpdateFrame(); break;
             case "rate":    learningRate = arged ? double.Parse(arg[0]) : learningRate; MsgLine($"Нейронная сеть обучается со скоростью: '{learningRate}'"); break;
             case "epoches": epoches = arged ? int.Parse(arg[0]) : epoches; MsgLine($"Нейронная сеть обучается '{epoches}' эпох."); break;
@@ -464,8 +467,8 @@ class Command
             }
             else
             {
-                CheckIt("Меньше одного аргумента");
-                CheckIt($"Для команды /{cmd.name} используем: /{cmd.args[0][0]}. ('{cmd.args[0][1]}')");
+                //CheckIt("Меньше одного аргумента");
+                //CheckIt($"Для команды /{cmd.name} используем: /{cmd.args[0][0]}. ('{cmd.args[0][1]}')");
 
                 Delegate meth = (Delegate)cmd.args[0][2];
 

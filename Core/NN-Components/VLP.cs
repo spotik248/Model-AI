@@ -2,13 +2,14 @@
 
 using static Model.Write;
 using static Model.Library;
-using static Model.NN;
+using static Model.NManage;
+using static Model.Learn;
 
 namespace Model;
 
 public static class VLP // Vector Layout Propagation
 {
-    private static double learningRate => Global.learningRate;
+    private static double learningRate => Learn.learningRate;
 
     // Проход
 

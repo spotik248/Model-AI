@@ -2,7 +2,8 @@
 
 using static Model.Write;
 using static Model.Library;
-using static Model.NN;
+using static Model.NManage;
+using static Model.Learn;
 
 namespace Model;
 
@@ -40,7 +41,7 @@ class INN// : INeuro // Recurrent NeuroNetwork
     //Классы
     //public GRU memory;
 
-    private double learningRate => Global.learningRate;
+    private double learningRate => learningRate;
     private Random random;
 
 #pragma warning disable CS8618
