@@ -77,7 +77,6 @@ class Model
         if (false) Dialog();
 
 
-
         while (!finished)
         {
             //Функции перед вводом пользователя
