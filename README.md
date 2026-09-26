@@ -6,9 +6,8 @@
 *Консольное приложение для обучения и использования разных нейронных сетей на C#.*
 
 ## ✨ Особенности (Features)
-* **Высокая производительность** — описание преимущества.
 * **Множество ИИ** — полная поддержка распространненых и уникальных ИИ.
-* **Кроссплатформенность** — работает на Windows, Linux и macOS.
+* **Кроссплатформенность** — работает на Windows, Linux, macOS.
 
 ## 🛠 Технологии и требования
 * **Язык:** C# 12
@@ -37,27 +36,59 @@ dotnet run --project путь/к/основному/проекту.csproj
 
 ## 💻 Пример использования (Usage)
 
-Покажите минимальный рабочий код, чтобы пользователь сразу понял, как работать с вашим проектом:
+### Использование через консоль
 
 ```csharp
-using MyAwesomeProject;
+using Model;
 
-var processor = new DataProcessor();
-await processor.ProcessAsync("input.txt");
+var model = new Model();
+Model.Main();
 
 Console.WriteLine("Готово!");
 ```
 
-## 🧪 Тестирование (Testing)
-Если у вас есть модульные тесты (xUnit, NUnit, MSTest), напишите, как их запустить:
-```bash
-dotnet test
+
+### Отправить запрос, получить ответ
+
+```csharp
+using Model;
+
+var model = new Model();
+
+// Библиотека
+Library.InitWords(100, 10); // 100 слов по 10 измерений
+// Обучение
+Learn.Start(); // Инициализация скорости обучения и количества эпох
+// Файловая система
+FileSystem.Start();
+// Нейронная сеть
+NManage.Start(0); // Начальная инициализация ИИ
+NManage.Change("pnn"); // Меняем на нужную ИИ
+NManage.SetSize(100) // Устанавливаем размер
+
+string input = "What is an apple?"; // Запрос
+
+// Здесь текст разбивается на эмбеддинги, отправляется в ИИ, получается ответ и переводится в обратно в слова
+
+var (questVector, answerVector, learn) = Pre(input);
+
+double[][]? answer = Learning(questVector, answerVector, learn);
+
+var (percentMean, indexWords, indexAnswer) = GetMean(answer, 0.85); // Точность ответа в сотых (один процент)
+
+string[] output = Post(percentMean, indexWords, indexAnswer, questVector);
+
+Console.WriteLine($"Ответ: {string.Join(" ", finallyAnswer)}");
+
+Console.WriteLine("Готово!");
 ```
 
 ## 🗺 Дорожная карта (Roadmap)
-- [x] Добавить базовый функционал.
-- [ ] Покрыть код тестами на 80%.
-- [ ] Добавить интеграцию с Docker.
+- [x] Сделать хаб.
+- [x] Сделать рабочую ИИ.
+- [ ] Разработать эффективную модель, использующую как можно меньше мощностей (gpu, cpu, mem).
+- [ ] Разработать бизнес-Модели, которые можно будет легко интегировать в бизнес и на сервер.
+- [ ] Сделать интеграцию с работой на серверах.
 
 ## 📄 Лицензия (License)
 Этот проект распространяется под лицензией AGPL. Подробнее см. в файле [LICENSE](LICENSE).
