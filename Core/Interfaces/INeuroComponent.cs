@@ -2,10 +2,8 @@
 
 namespace Model;
 
-public interface INeuroComponent
+public interface INeuroComponent : INames
 {
-    string name { get; set; }
-    string shortName { get; set; }
     ushort count { get; set; }
     int Size();
 }

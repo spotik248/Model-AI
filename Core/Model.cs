@@ -73,14 +73,12 @@ class Model
         Start();
 
         // Включить для быстрых диалогов и выбора
-
         if (false) Dialog();
 
 
         while (!finished)
         {
             //Функции перед вводом пользователя
-
 
             EscPush();
             if(finished) break;
@@ -89,15 +87,14 @@ class Model
 
 
             //Действия
-            
+
             Line("");
             string input = Util.UnExcConsoleRead(); // Никогда не null
 
             // FOR DEVELOPERS, DISABLE IT
             if(false) AnotherRouter(input);
             
-            Router(input);
-
+            else Router(input);
 
             //Функции после ввода пользователя
             
@@ -1252,62 +1249,85 @@ class Model
 
             int size = 5;
             int sizedim = size * dimension * 2; // 100
-            int size3 = sizedim * 3; // 300
+            int maxDatas = 4;
+            int size2 = sizedim * maxDatas; // 400
 
             double[] inputLayout = Vector.ToSize(Init.Randomized((size-1) * dimension), sizedim); // sizedim x100
             //double[] inputLayout = Init.Zeros(size * 2);
 
             double[] view = Init.Full(0.5, sizedim); // x100
 
-            double[] data = Init.Zeros(size3); // x100*3 // Вся информация (сенсоры + эмоции)
+            // кр.ср.память (куча данных)
+            double[][][] shortTermMemory = Init.Zeros(1, 4, sizedim); // 1x4x100 -- создаем меньше, чтобы не возникали ошибки с размерами
+            shortTermMemory[0] = [ Init.Zeros(sizedim), Init.Zeros(sizedim), Init.Zeros(size2), Init.Zeros(size2) ];
+
+            // Вся информация (сенсоры + эмоции)
+            double[][] data = Init.Zeros(4, sizedim); // 4x100 // Состоит из InputLayout, view, emotion, future
+            int dataSize = sizedim + sizedim + size2 + size2; // Размер данных
+
+            // будущее
+            double[] future    = Init.Zeros(size2);              // x100*4
+
+            double[][] widthf1 = Init.Xavier(dataSize, sizedim); // 1000x100*4
+            double[] biasf1    = Init.Zeros(sizedim);         // x100
+
+            double[][] widthf2 = Init.Xavier(sizedim, size2); // 100x100*4
+            double[] biasf2    = Init.Zeros(size2);           // x100*4
+
+            // Эмоция, разница предсказания и действительности
+            double[] emotion   = Init.Full(0.5, size2);             // x100*4
 
 
-            double[][] shortTermMemory = Init.Zeros(1, size3); // 1x100 * 3 // кр.ср.память (куча данных)
+            int maxLogWriteMemory = 500; // Для записи в дл.ср.память
+            double[][][] logWriteMemory = Init.Zeros(maxLogWriteMemory, 4, sizedim);
+            for(int i = 0; i < maxLogWriteMemory; i++) // заполнитель
+                    logWriteMemory[i] = [ Init.Zeros(sizedim), Init.Zeros(sizedim), Init.Zeros(size2), Init.Zeros(size2) ];
+
+            double[] lastEmotion      = Init.Zeros(size2);
+            double[] lastHiddenErrorEm = Init.Zeros(size2);
 
 
-            double[] Future   = Init.Zeros(size3);   // x100 * 3 // для будущего
-            double[] fromFuture = Init.Zeros(size3); // x100 * 3 // из будущего
-
-            double[][] widthf1 = Init.Xavier(size3, sizedim); // 100*3x100
-            double[] biasf1    = Init.Zeros(sizedim);               // x100
-
-            double[][] widthf2 = Init.Xavier(sizedim, size3); // 100x100*3
-            double[] biasf2    = Init.Zeros(size3);           // x100*3
-
-            double[] emotion    = Init.Full(0.5, size3);   // Эмоция, то же что и предсказание
-
-
-            int maxLogWriteMemory = 10; //
-            double[][] logWriteMemory = Init.Zeros(maxLogWriteMemory, size3);  // Для записи в дл.ср.память
-
-
-            double[] lastEmotion       = Init.Zeros(size3);
-            double[] lastEmHiddenError = Init.Zeros(size3);
-
-
-            double[][] widthm1 = Init.Xavier(size3, sizedim); // 300x100
+            double[][] widthm1 = Init.Xavier(dataSize, sizedim); // 1000x100
             double[] biasm1    = Init.Zeros(sizedim);         // x100
 
-            double[][] widthm2 = Init.Xavier(sizedim, size3); // 100x300
-            double[] biasm2    = Init.Zeros(size3);           // x300
+            double[][] widthm2 = Init.Xavier(sizedim, size2); // 100x100*4
+            double[] biasm2    = Init.Zeros(size2);           // x100*4
 
-            double[] longTermMemory = Init.Zeros(size3);      // x300 // Долгосрочная память, сжимает по признакам
+            // Долгосрочная память, сжимает по признакам
+            double[] longTermMemory = Init.Zeros(size2);      // x100*4
+
+            double[] lastErrorM       = Init.Zeros(size2); // x100*4
+            double[] lastHiddenErrorM = Init.Zeros(size2); // x100*4
 
 
-            double[][] widtha1 = Init.Xavier(size3, sizedim); // 300x100
+            double[][] widtha1 = Init.Xavier(dataSize, sizedim); // 1000x100
             double[] biasa1    = Init.Zeros(sizedim);         // x100
 
-            double[][] widtha2 = Init.Xavier(sizedim, size3); // 100x300
-            double[] biasa2    = Init.Zeros(size3);           // x300
+            double[][] widtha2 = Init.Xavier(sizedim, size2); // 100x100*4
+            double[] biasa2    = Init.Zeros(size2);           // x100*4
 
-            double[] autoMemory = Init.Zeros(size3);          // x300 // Процедурная память, используется при автоматизме
+            // Процедурная память, используется при автоматизме
+            double[] autoMemory = Init.Zeros(size2);       // x100*4
+
+            double[] lastErrorA       = Init.Zeros(size2); // x100*4
+            double[] lastHiddenErrorA = Init.Zeros(size2); // x100*4
 
 
-            double[] target   = Vector.ToSize(Init.Randomized((size-2) * dimension), size3); // sizedim
+            double[] target = Vector.ToSize(Init.Randomized((size-2) * dimension), size2); // size2
+
+            CheckIt("Входящие данные:");
+            CheckIt("inputLayout", inputLayout);
+            CheckIt("view", view);
+            CheckIt("emotion", emotion);
+            CheckIt("future", future);
+
+            CheckIt("Выходные данные:");
+            CheckIt("target", target);
 
 
-            double[] lastError       = Init.Zeros(sizedim);
-            double[] lastHiddenError = Init.Zeros(sizedim);
+            // double[] lastError       = Init.Zeros(size2); // x300
+            // double[] lastHiddenError = Init.Zeros(size2); // x300
+
 
             /* Слушай, это вышло всё довольно трудно.
             // Я не использую transformer, у меня собственная нейронка, а все что ты написал это довольно непонятно.
@@ -1349,28 +1369,35 @@ class Model
             // если всё предсказуемо - выбираем автоматизм, если нет решаем сложную задачу
             */
 
-            
 
             for(int p = 1; p < parse+1; p++)
             {
                 // Загрузка данных                
 
-                data = Matrix.ToVector([inputLayout, view, emotion]);
+                data = [inputLayout, view, emotion, future];
+                
+                for(int i = 0; i < data.Length; i++)
+                    CheckIt("data.Length: "+data.Length+", data[i].Length: "+data[i].Length);
+
+                for(int i = 0; i < shortTermMemory[0].Length; i++)
+                    CheckIt("shortTermMemory[0].Length: "+shortTermMemory[0].Length+", shortTermMemory[0][i].Length: "+shortTermMemory[0][i].Length);
 
                 // Загрузка из ShortTermMemory, подмешивание в данные
                 
+                // for(int i = 0, k = 0; i < data.Length; i++)
+                //     for(int j = 0; j < data[i].Length; j++, k++)
+                //         data[i][j] += shortTermMemory[0][k] * 0.3;
                 for(int i = 0; i < data.Length; i++)
-                    data[i] += shortTermMemory[0][i] * 0.3;
+                    for(int j = 0; j < data[i].Length; j++)
+                    data[i][j] += shortTermMemory[0][i][j] * 0.3;
 
                 // Механизм предсказания
                 // Вход: Любая информация (Слова, зрение, эмоции, внутреннее состояние, кр.ср. память)
                 // Чем больше emotion, тем лучше запомнится это в долгосрочную память
-
-                // Загрузка предсказания из прошлого
                 
 
-                double[] inputFutureLayout = data; // x100*3 // Входящие данные это данные сети
-                fromFuture = Future; // x100*3 //Загрузка предсказания будущего из прошлого заранее
+                double[] inputFutureLayout = Matrix.ToVector(data); // x100*4 // Входящие данные это данные сети
+                CheckIt("inputFutureLayout", inputFutureLayout);
 
                 double[] hiddenFutureLayout = Init.Zeros(widthf1[0].Length);
                 for(int i = 0; i < widthf1[0].Length; i++)
@@ -1394,26 +1421,32 @@ class Model
                 }
                 CheckIt("outputFutureLayout", outputFutureLayout);
 
-                // Слоя предсказания
-                Future = outputFutureLayout;
-
-                // Поиск разницы - эмоция (поиск ошибки)
-                emotion = Vector.Sub(fromFuture, data);
+                // Поиск разницы = эмоция (ошибка предсказания)
+                emotion = Vector.Sub(future, Matrix.ToVector(data));
                 CheckIt("emotion", emotion);
 
-                data = Matrix.ToVector([inputLayout, view, emotion]); // Сохраняем новую эмоцию
-
-                shortTermMemory[0] = data; // Сохранение данных в кр.ср.память
-
+                
                 // Условие новизны
                 double conditionNew = Math.Abs(Vector.AddAll(emotion));
                 bool conditionNewBool = conditionNew > 0.2;
 
+                for(int i = 0; i < data.Length; i++)
+                    CheckIt("data.Length: "+data.Length+", data[i].Length: "+data[i].Length);
+
                 // Сохранение в дневной лог, для последующего обучения
                 if(logWriteMemory.Count() != logWriteMemory.Length && conditionNewBool)
-                    logWriteMemory[logWriteMemory.Count()] = shortTermMemory[0];
+                    logWriteMemory[logWriteMemory.Count()] = data;
 
-                
+
+                // Слоя предсказания
+                future = outputFutureLayout;
+                // Сохраняем новую эмоцию и новое предсказание
+                data = [inputLayout, view, emotion, future]; 
+                // Сохранение данных в кр.ср.память
+                shortTermMemory[0] = data;
+
+                for(int i = 0; i < data.Length; i++)
+                    CheckIt("data.Length: "+data.Length+", data[i].Length: "+data[i].Length);
 
                 // Условие новизны
 
@@ -1422,7 +1455,8 @@ class Model
                 {
                     // Этап мышления
                     
-                    double[] inputThinkLayout = data;
+                    double[] inputThinkLayout = Matrix.ToVector(data);
+                    CheckIt("inputThinkLayout", inputThinkLayout);
 
                     double[] hiddenThinkLayout = Init.Zeros(widthm1[0].Length);
                     for(int i = 0; i < widthm1[0].Length; i++)
@@ -1447,12 +1481,17 @@ class Model
                     CheckIt("outputThinkLayout", outputThinkLayout);
 
                     double[] answer = outputThinkLayout;
+                    CheckIt("answer", answer);
+
+                    double[] error = Vector.Sub(outputThinkLayout, target); //a - t
+                    CheckIt("think error", error);
                 }
                 else
                 {
                     // Этап автоматизма
                     
-                    double[] inputAutoLayout = data;
+                    double[] inputAutoLayout = Matrix.ToVector(data);
+                    CheckIt("inputAutoLayout", inputAutoLayout);
 
                     double[] hiddenAutoLayout = Init.Zeros(widtha1[0].Length);
                     for(int i = 0; i < widtha1[0].Length; i++)
@@ -1476,29 +1515,66 @@ class Model
                     }
                     CheckIt("outputAutoLayout", outputAutoLayout);
 
+                    double[] answer = outputAutoLayout;
+                    CheckIt("answer", answer);
 
-
+                    double[] error = Vector.Sub(outputAutoLayout, target); //a - t
+                    CheckIt("automatic error", error);
                 }
-                // #########
 
- 
+                if(logWriteMemory.Count() == logWriteMemory.Length)
+                {
+                    CheckIt("Скип получения данных");
+                    break;
+                }
 
-                // ##### В СОН #####
+            } // ######
 
-
-
-                double[] emDelta = Vector.Mult(emotion, FucAct.DSigmoid(fromFuture));
-                CheckIt("emDelta", emDelta);
-                CheckIt("(emotion) outputLayout, DSigmoid", [fromFuture, FucAct.DSigmoid(fromFuture)]);
-
+            // СОН
+            for(int p = 1; p < logWriteMemory.Count()+1; p++)
+            {
+                CheckIt("Попадание в сон (обучение)");
 
                 double stud = 1.0/(1.0 + 0.1 * p); //double stud = 1.0/p;
                 CheckIt("stud", [stud, p]);
 
+                // ### Прямой проход эмоций ###
+
+                double[] inputFutureLayout = Matrix.ToVector(logWriteMemory[p-1]); // 4x100*4 // Входящие данные это данные сети
+                CheckIt("inputFutureLayout", inputFutureLayout);
+
+                double[] hiddenFutureLayout = Init.Zeros(widthf1[0].Length);
+                for(int i = 0; i < widthf1[0].Length; i++)
+                {
+                    double mem = 0;
+                    for(int j = 0; j < inputFutureLayout.Length; j++)
+                        mem += inputFutureLayout[j] * widthf1[j][i];
+
+                    hiddenFutureLayout[i] = FucAct.Sigmoid(mem + biasf1[i]);
+                }
+                CheckIt("hiddenFutureLayout", hiddenFutureLayout);
+
+                double[] outputFutureLayout = Init.Zeros(widthf2[0].Length);
+                for(int i = 0; i < widthf2[0].Length; i++)
+                {
+                    double mem = 0;
+                    for(int j = 0; j < hiddenFutureLayout.Length; j++)
+                        mem += hiddenFutureLayout[j] * widthf2[j][i];
+
+                    outputFutureLayout[i] = FucAct.Sigmoid(mem + biasf2[i]);
+                }
+                CheckIt("outputFutureLayout", outputFutureLayout);
 
 
-                double[] emHiddenError = Init.Zeros(widthf1[0].Length);
+                // Поиск разницы = эмоция (ошибка предсказания)
+                emotion = Vector.Sub(future, Matrix.ToVector(data));
+                CheckIt("emotion", emotion);
 
+                double[] emDelta = Vector.Mult(emotion, FucAct.DSigmoid(future));
+                CheckIt("emDelta", emDelta);
+                CheckIt("(emotion) outputLayout, DSigmoid", [future, FucAct.DSigmoid(future)]);
+
+                double[] HiddenErrorEm = Init.Zeros(widthf1[0].Length);
                 for (int i = 0; i < hiddenFutureLayout.Length; i++)
                 {
                     double sumFeedback = 0;
@@ -1507,16 +1583,16 @@ class Model
                         // Передаем влияние дельты обратно через веса
                         sumFeedback += emDelta[j] * widthf2[i][j];
                     }
-                    emHiddenError[i] = sumFeedback; // без DSigmoid
+                    HiddenErrorEm[i] = sumFeedback; // без DSigmoid
                 }
-                CheckIt("emHiddenError", emHiddenError);
+                CheckIt("HiddenErrorEm", HiddenErrorEm);
 
 
                 //Обновление эмоций
 
                 for(int i = 0; i < inputFutureLayout.Length; i++)
-                    for(int j = 0; j < emHiddenError.Length; j++)
-                        widthf1[i][j] -= stud * emHiddenError[j] * inputFutureLayout[i];
+                    for(int j = 0; j < HiddenErrorEm.Length; j++)
+                        widthf1[i][j] -= stud * HiddenErrorEm[j] * inputFutureLayout[i];
                 CheckIt("widthf1", widthf1);
                 
                 for(int i = 0; i < hiddenFutureLayout.Length; i++)
@@ -1526,7 +1602,7 @@ class Model
 
 
                 for(int i = 0; i < biasf1.Length; i++)
-                    biasf1[i] -= stud * emHiddenError[i];
+                    biasf1[i] -= stud * HiddenErrorEm[i];
                 CheckIt("biasf1", biasf1);
 
                 for(int i = 0; i < biasf2.Length; i++)
@@ -1534,76 +1610,196 @@ class Model
                 CheckIt("biasf2", biasf2);
 
 
-
                 lastEmotion = emotion;
-                lastEmHiddenError = emHiddenError;
+                lastHiddenErrorEm = HiddenErrorEm;
+
+
+                // ### Прямой проход мышления ###
+
+                double[] inputThinkLayout = Matrix.ToVector(data);
+                CheckIt("inputThinkLayout", inputThinkLayout);
+
+                double[] hiddenThinkLayout = Init.Zeros(widthm1[0].Length);
+                for(int i = 0; i < widthm1[0].Length; i++)
+                {
+                    double mem = 0;
+                    for(int j = 0; j < inputThinkLayout.Length; j++)
+                        mem += inputThinkLayout[j] * widthm1[j][i];
+                    
+                    hiddenThinkLayout[i] = FucAct.Sigmoid(mem + biasm1[i]);
+                }
+                CheckIt("hiddenThinkLayout", hiddenThinkLayout);
+
+                double[] outputThinkLayout = Init.Zeros(widthm2[0].Length);
+                for(int i = 0; i < widthm2[0].Length; i++)
+                {
+                    double mem = 0;
+                    for(int j = 0; j < hiddenThinkLayout.Length; j++)
+                        mem += hiddenThinkLayout[j] * widthm2[j][i];
+
+                    outputThinkLayout[i] = FucAct.Sigmoid(mem + biasm2[i]);
+                }
+                CheckIt("outputThinkLayout", outputThinkLayout);
+
+                // Ошибка мышления
+
+
+                double[] errorM = Vector.Sub(outputThinkLayout, target); //a - t
+                CheckIt("errorM", errorM);
+
+                double[] DeltaM = Vector.Mult(errorM, FucAct.DSigmoid(outputThinkLayout));
+                CheckIt("DeltaM", DeltaM);
+                CheckIt("outputThinkLayout, DSigmoid", [outputThinkLayout, FucAct.DSigmoid(outputThinkLayout)]);
 
 
 
-                // double stud = 1.0/(1.0 + 0.1 * p); //double stud = 1.0/p;
-                // CheckIt("stud", [stud, p]);
+                double[] hiddenErrorM = Init.Zeros(widthm1[0].Length);
+
+                for (int i = 0; i < hiddenThinkLayout.Length; i++)
+                {
+                    double sumFeedback = 0;
+                    for (int j = 0; j < DeltaM.Length; j++)
+                    {
+                        // Передаем влияние дельты обратно через веса
+                        sumFeedback += DeltaM[j] * widthm2[i][j];
+                    }
+                    hiddenErrorM[i] = sumFeedback * FucAct.DSigmoid(hiddenThinkLayout[i]); // С DSigmoid()
+                }
+                CheckIt("hiddenErrorM", hiddenErrorM);
+
+                // Обновление мышления
 
 
-
-                // double[] error = Vector.Sub(outputLayout, target); //a - t
-                // CheckIt("error", error);
-
-                // double[] Delta = Vector.Mult(error, FucAct.DSigmoid(outputLayout));
-                // CheckIt("Delta", Delta);
-                // CheckIt("outputLayout, DSigmoid", [outputLayout, FucAct.DSigmoid(outputLayout)]);
-
-
-
-                // double[] hiddenError = Init.Zeros(width1[0].Length);
-
-                // for (int i = 0; i < hiddenLayout.Length; i++)
-                // {
-                //     double sumFeedback = 0;
-                //     for (int j = 0; j < Delta.Length; j++)
-                //     {
-                //         // Передаем влияние дельты обратно через веса
-                //         sumFeedback += Delta[j] * width2[i][j];
-                //     }
-                //     hiddenError[i] = sumFeedback * FucAct.DSigmoid(hiddenLayout[i]); // С DSigmoid()
-                // }
-                // CheckIt("hiddenError", hiddenError);
-
-
-
-                // for(int i = 0; i < inputLayout.Length; i++)
-                //     for(int j = 0; j < hiddenError.Length; j++)
-                //         width1[i][j] -= stud * hiddenError[j] * inputLayout[i];
-                // CheckIt("width1", width1);
+                for(int i = 0; i < inputThinkLayout.Length; i++)
+                    for(int j = 0; j < hiddenErrorM.Length; j++)
+                        widthm1[i][j] -= stud * hiddenErrorM[j] * inputThinkLayout[i];
+                CheckIt("widthm1", widthm1);
                 
-                // for(int i = 0; i < hiddenLayout.Length; i++)
-                //     for(int j = 0; j < Delta.Length; j++)
-                //         width2[i][j] -= stud * Delta[j] * hiddenLayout[i]; // hiddenLayout[j]
-                // CheckIt("width2", width2);
+                for(int i = 0; i < hiddenThinkLayout.Length; i++)
+                    for(int j = 0; j < DeltaM.Length; j++)
+                        widthm2[i][j] -= stud * DeltaM[j] * hiddenThinkLayout[i]; // hiddenLayout[j]
+                CheckIt("widthm2", widthm2);
 
 
-                // for(int i = 0; i < bias1.Length; i++)
-                //     bias1[i] -= stud * hiddenError[i];
-                // CheckIt("bias1", bias1);
+                for(int i = 0; i < biasm1.Length; i++)
+                    biasm1[i] -= stud * hiddenErrorM[i];
+                CheckIt("biasm1", biasm1);
 
-                // for(int i = 0; i < bias2.Length; i++)
-                //     bias2[i] -= stud * Delta[i];
-                // CheckIt("bias2", bias2);
+                for(int i = 0; i < biasm2.Length; i++)
+                    biasm2[i] -= stud * DeltaM[i];
+                CheckIt("biasm2", biasm2);
 
 
 
-                // lastError = error;
-                // lastHiddenError = hiddenError;
+                lastErrorM = errorM;
+                lastHiddenErrorM = hiddenErrorM;
+
+
+
+                // ### Прямой проход автоматизма ###
+
+                double[] inputAutoLayout = Matrix.ToVector(data);
+                CheckIt("inputAutoLayout", inputAutoLayout);
+
+                double[] hiddenAutoLayout = Init.Zeros(widtha1[0].Length);
+                for(int i = 0; i < widtha1[0].Length; i++)
+                {
+                    double mem = 0;
+                    for(int j = 0; j < inputAutoLayout.Length; j++)
+                        mem += inputAutoLayout[j] * widtha1[j][i];
+
+                    hiddenAutoLayout[i] = FucAct.Sigmoid(mem + biasa1[i]);
+                }
+                CheckIt("hiddenAutoLayout", hiddenAutoLayout);
+
+                double[] outputAutoLayout = Init.Zeros(widtha2[0].Length);
+                for(int i = 0; i < widtha2[0].Length; i++)
+                {
+                    double mem = 0;
+                    for(int j = 0; j < hiddenAutoLayout.Length; j++)
+                        mem += hiddenAutoLayout[j] * widtha2[j][i];
+
+                    outputAutoLayout[i] = FucAct.Sigmoid(mem + biasa2[i]);
+                }
+                CheckIt("outputAutoLayout", outputAutoLayout);
+
+                // Ошибка автоматизма
+
+
+                double[] errorA = Vector.Sub(outputAutoLayout, target); //a - t
+                CheckIt("errorA", errorA);
+
+                double[] DeltaA = Vector.Mult(errorA, FucAct.DSigmoid(outputAutoLayout));
+                CheckIt("DeltaA", DeltaA);
+                CheckIt("outputAutoLayout, DSigmoid", [outputAutoLayout, FucAct.DSigmoid(outputAutoLayout)]);
+
+
+
+                double[] hiddenErrorA = Init.Zeros(widtha1[0].Length);
+
+                for (int i = 0; i < hiddenAutoLayout.Length; i++)
+                {
+                    double sumFeedback = 0;
+                    for (int j = 0; j < DeltaA.Length; j++)
+                    {
+                        // Передаем влияние дельты обратно через веса
+                        sumFeedback += DeltaA[j] * widtha2[i][j];
+                    }
+                    hiddenErrorA[i] = sumFeedback * FucAct.DSigmoid(hiddenAutoLayout[i]); // С DSigmoid()
+                }
+                CheckIt("hiddenerror", hiddenErrorA);
+
+
+                // Обновление автоматизма
+
+
+
+                for(int i = 0; i < inputAutoLayout.Length; i++)
+                    for(int j = 0; j < hiddenErrorA.Length; j++)
+                        widtha1[i][j] -= stud * hiddenErrorA[j] * inputAutoLayout[i];
+                CheckIt("widtha1", widtha1);
+                
+                for(int i = 0; i < hiddenAutoLayout.Length; i++)
+                    for(int j = 0; j < DeltaA.Length; j++)
+                        widtha2[i][j] -= stud * DeltaA[j] * hiddenAutoLayout[i]; // hiddenLayout[j]
+                CheckIt("widtha2", widtha2);
+
+
+                for(int i = 0; i < biasa1.Length; i++)
+                    biasa1[i] -= stud * hiddenErrorA[i];
+                CheckIt("biasa1", biasa1);
+
+                for(int i = 0; i < biasa2.Length; i++)
+                    biasa2[i] -= stud * DeltaA[i];
+                CheckIt("biasa2", biasa2);
+
+
+                lastErrorA = errorA;
+                lastHiddenErrorA = hiddenErrorA;
+
 
                 CheckIt("### end ###");
             }
 
             Line("Разница inputLayout и target:", Vector.AddAll(Vector.Sub(inputLayout, target)), "\n");
 
-            Full(lastError);
-            Line("Последная выходная ошибка:", Vector.AddAll(lastError));
+            Full(lastErrorM);
+            Line("Последная выходная ошибка мышления:", Vector.AddAll(lastErrorM));
 
-            Full(lastHiddenError);
-            Line("Последная скрытая ошибка:", Vector.AddAll(lastHiddenError));
+            Full(lastHiddenErrorM);
+            Line("Последная скрытая ошибка мышления:", Vector.AddAll(lastHiddenErrorM));
+
+            Full(lastErrorA);
+            Line("Последная выходная ошибка автоматизма:", Vector.AddAll(lastErrorA));
+
+            Full(lastHiddenErrorA);
+            Line("Последная скрытая ошибка автоматизма:", Vector.AddAll(lastHiddenErrorA));
+
+            Full(lastEmotion);
+            Line("Последная выходная ошибка эмоций (эмоция):", Vector.AddAll(lastEmotion));
+
+            Full(lastHiddenErrorEm);
+            Line("Последная скрытая ошибка эмоций:", Vector.AddAll(lastHiddenErrorEm));
         }
         else finished = true;
     }
@@ -1622,7 +1818,7 @@ class Model
     
     private static void EscPush()
     {
-        if (Console.KeyAvailable)
+        if (!Console.IsInputRedirected && Console.KeyAvailable)
             {
             // Читаем нажатую клавишу без вывода ее на экран
             var keyInfo = Console.ReadKey(intercept: true);

@@ -12,7 +12,7 @@ static class NeuroPocketAnalis
 {
     public static double[] errors = [];
     
-    public static string[][] ReadLearnFolder()
+    public static string[] ReadLearnFolder()
     {
         // Чтение файлов в папке @"learnPocket"
 
@@ -20,17 +20,17 @@ static class NeuroPocketAnalis
 
         string[] learnFiles = Directory.GetFiles(learnFolder, "*");
 
-        MsgLine("Файлы для чтения: "+ learnFiles);
+        MsgLine("Файлы для чтения: ");
+        Full(learnFiles);
 
         string[][] learningStroke = learnFiles.Select(Util.ReadLines).ToArray();
+        var reLearningStroke = new List<string>();
 
-        MsgLine("Строки прочитанных файлов", learningStroke);
-        
-        int ls = 0;
+        MsgLine("Строки прочитанных файлов: ");
 
-        for (int i = 0; i < learnFiles.Length; i++)
+        for (int i = 0; i < learnFiles.Length; i++) // Это файлы
         {
-            for (int j = 0; j < learningStroke[i].Length; j++)
+            for (int j = 0; j < learningStroke[i].Length; j++) // Это абзац со словами 
             {
                 learningStroke[i][j] = learningStroke[i][j].Trim().ToLower() ?? "";
 
@@ -38,40 +38,39 @@ static class NeuroPocketAnalis
                 {
                     if (learningStroke[i][j][0] == '/' && learningStroke[i][j][1] == '/')
                         learningStroke[i][j] = "";
-                    ls++;
                 }
                 else learningStroke[i][j] = "";
 
                 CheckIt("learningStroke[i][j]", learningStroke[i][j]);
+
+                if(learningStroke[i][j] != "") reLearningStroke.Add(learningStroke[i][j]);
             }
         }
-        return learningStroke;
+
+        return reLearningStroke.ToArray();
     }
 
-    public static (double[][][]?, double[][][]?, bool[]) Pre(string[][] learningStroke)
+    public static (double[][][]?, double[][][]?, bool[]) Pre(string[] learningStroke)
     {
-        List<double[][]> questList = new List<double[][]>();
-        List<double[][]> answerList = new List<double[][]>();
-        List<bool> learnList = new List<bool>();
+        var questList = new List<double[][]>();
+        var answerList = new List<double[][]>();
+        var learnList = new List<bool>();
 
         for (int i = 0; i < learningStroke.Length; i++)
         {
-            for (int j = 0; j < learningStroke[i].Length; j++)
+            if (!learningStroke[i].IsNull() && learningStroke[i] != " ")
             {
-                if (!learningStroke[i][j].IsNull() && learningStroke[i][j] != " ")
-                {
-                    CheckIt("NAnalis.Pre learningStroke[i][j]", learningStroke[i][j]);
+                CheckIt("NAnalis.Pre learningStroke[i][j]", learningStroke[i]);
 
-                    // "Привет мир!" => [ "Привет", "мир", "!" ] => [ [0.1, 0.2], [0.3, 0.4], [0.5, 0.6] ] ТОЕСТЬ string => double[][]
-                    var (questVector, answerVector, learn) = NAnalis.Pre(learningStroke[i][j]);
+                // "Привет мир!" => [ "Привет", "мир", "!" ] => [ [0.1, 0.2], [0.3, 0.4], [0.5, 0.6] ] значит string => double[][]
+                var (questVector, answerVector, learn) = NAnalis.Pre(learningStroke[i]);
 
-                    if (questVector == null)
-                        Err($"Ошибка при обработке вопрос-ответ. Возвращено: {questVector}, {answerVector}, {learn}");
+                if (questVector == null)
+                    Err($"Ошибка при обработке вопрос-ответ. Возвращено: {questVector}, {answerVector}, {learn}");
                     
-                    questList.Add(questVector); // Добавляем в один пакет из всех файлов и строк
-                    answerList.Add(answerVector);
-                    learnList.Add(learn);
-                }
+                questList.Add(questVector); // Добавляем в один пакет из всех файлов и строк
+                answerList.Add(answerVector);
+                learnList.Add(learn);
             }
         }
 
@@ -84,13 +83,15 @@ static class NeuroPocketAnalis
 
     public static void General()
     {
-        string[][] learningStroke = ReadLearnFolder();
+        string[] learningStroke = ReadLearnFolder();
 
         //learningStroke.Length - файл
-        //learningStroke[0].Length - таблица
-        //learningStroke[0][0].Length - строка
+        //learningStroke[0].Length - столбец
+        //learningStroke[0][0].Length - текст
 
         var (questVectors, answerVectors, learnVectors) = Pre(learningStroke);
+
+        // Исключения
 
         if(questVectors == null)
         {
@@ -122,24 +123,10 @@ static class NeuroPocketAnalis
         CheckIt("questVectors[0].Length", questVectors[0].Length);
         CheckIt("questVectors[0][0].Length", questVectors[0][0].Length);
         
-
+        
         PocketLearn(questVectors, answerVectors, learnVectors);
 
-        // // ### Получение ответа ### //
-
-        // double[][]? answer = Learn(questVector, answerVector, learn);
-
-        // // ### Формирование слов из double[][] ### //
-
-        // if(answer == null || answer.Length == 0 || answer[0].Length == 0)
-        // {
-        //     Err("Answer of Predict is null or lengthes are zeros");
-        //     return;
-        // }
-
-        // CheckIt("answer", answer);
-
-        // var (percentMean, indexWords, indexAnswer) = GetMeanNew(answer, 0.9); // Точность ответа в сотых (один процент)
+        // Получение ответа
 
         for (int pocket = 0; pocket < questVectors.Length; pocket++)
         {
@@ -153,11 +140,13 @@ static class NeuroPocketAnalis
 
                 if(answer != null && answer.Length != 0 && answer[0].Length != 0)
                 {
-                    MsgLine($"Получение ответа для пакета {pocket} от нейронной сети...\n");
-
                     CheckIt("answer", answer);
 
-                    var (percentMean, indexWords, indexAnswer) = NAnalis.GetMeanNew(answer, 0.90);
+                    MsgLine($"Получение ответа для пакета {pocket} от нейронной сети...\n");
+
+                    //CheckIt("answer", answer);
+
+                    var (percentMean, indexWords, indexAnswer) = NAnalis.GetMean(answer, 0.85);
 
                     if (percentMean != null && indexWords != null && indexAnswer != null)
                     {
@@ -176,15 +165,50 @@ static class NeuroPocketAnalis
     {
         MsgLine("Обучение нейронной сети...");
 
-        SetFull(1, 1000, questVectors.Length);
+        SetFull(0.9, 500, questVectors.Length);
         
         for (int epoch = 0; epoch < epoches; epoch++)
         {
+            CheckIt(nn[id].shortName, nn[id].onlyPocket);
+            if(nn[id].onlyPocket)
+            {
+                try
+                {
+                    //if(learnVectors)
+                    double[][][] Errors = new double[epoches][][];
+
+                    // а есть смысл в learnVectors?
+                    
+                    double[][]? errors = Study(questVectors, answerVectors);
+
+                    if(errors == null) {
+                        Exc($"Ошибка при обучении стала null: {errors}.");
+                        return;
+                    }
+
+                    MsgLine($"Скорость обучения: {lr}");
+                    MsgLine($"Общая ошибка нейросети: {errors[0]}");
+                    MsgLine($"Обучено на {100 * epoch / epoches}%");
+                    MsgLine($"Пройдено эпох: {epoch}/{epoches}");
+
+                    Errors[epoch] = errors;
+
+                    //MoveVectorWords(Matrix.Combinate(questVector, answerVector));
+                    UseUpdateLearningRate(3, Errors[epoch][0], epoch);
+                }
+                catch (Exception ex)
+                {
+                    MsgLine($"Ошибка при пакетном обучении: {ex} ");
+                }
+
+                Line($"Эпоха {epoch + 1}/{epoches}, полный пакет");
+            }
+            else
             for (int pocket = 0; pocket < questVectors.Length; pocket++)
             {
 
-                double[][] questVector = questVectors[pocket];
-                double[][] answerVector = answerVectors[pocket];
+                //double[][] questVector = questVectors[pocket];
+                //double[][] answerVector = answerVectors[pocket];
 
 
                 double[][] Errors = new double[epoches][];
@@ -200,7 +224,7 @@ static class NeuroPocketAnalis
                             return;
                         }
 
-                        MsgLine($"Скорость обучения: {learningRate}");
+                        MsgLine($"Скорость обучения: {lr}");
                         MsgLine($"Общая ошибка нейросети: {errors[0]}");
                         MsgLine($"Обучено на {100 * epoch / epoches}%");
                         MsgLine($"Пройдено эпох: {epoch}/{epoches}");
@@ -226,5 +250,8 @@ static class NeuroPocketAnalis
 
     public static double[][]? Predict(double[][] input) => Learn.Predict(input);
     public static double[]? Study(double[][] input, double[][] output) => Learn.Study(input, output);
+
+    public static double[][][]? Predict(double[][][] input) => Learn.Predict(input);
+    public static double[][]? Study(double[][][] input, double[][][] output) => Learn.Study(input, output);
 
 }

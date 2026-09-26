@@ -7,19 +7,20 @@ using static Model.Learn;
 
 namespace Model;
 
-public class SLP : INeuroComponent
+public class DLP : INeuroComponent // Double Layout of Perceptron
 {
     //Из конструктора
 
-    public string name { get; set; } = "Second Layout Perceptron";
+    public string name { get; set; } = "Double Layout Perceptron";
     public string shortName { get; set; } = "selp";
+    public string desc { get; set; } = "Has Double Layout Perceptron";
     public ushort count { get; set; } = 2; // ushort = 2 байта, от 0 до 65535
     public static int sizeNN;
     public int Size() => sizeNN * count;
     
     private static int size => size;
     private static int dimension => dimension;
-    private static double learningRate => Learn.learningRate;
+    private static double lr => Learn.lr;
 
     public double[][] firstLayout; public double[][] secondLayout;
     public double[][] actFirstLayout; public double[][] actSecondLayout;
@@ -28,7 +29,7 @@ public class SLP : INeuroComponent
 
 #pragma warning disable CS8618
 
-    public SLP(int size)
+    public DLP(int size)
     {
         sizeNN = size;
         
@@ -96,8 +97,8 @@ public class SLP : INeuroComponent
                 for (int k = 0; k < dSecondLayout[0].Length; k++)
                     secondGrad[i][j] = dSecondLayout[i][k] * thisLayout[j][k];
         
-        newthisWidth[0] = Matrix.Add(oldthisWidth[0], Matrix.MultOne(firstGrad, learningRate));
-        newthisWidth[1] = Matrix.Add(oldthisWidth[1], Matrix.MultOne(secondGrad, learningRate));
+        newthisWidth[0] = Matrix.Add(oldthisWidth[0], Matrix.MultOne(firstGrad, lr));
+        newthisWidth[1] = Matrix.Add(oldthisWidth[1], Matrix.MultOne(secondGrad, lr));
 
         return newthisWidth;
     }
@@ -107,7 +108,7 @@ public class SLP : INeuroComponent
         double[][] newBias = Init.Double<double>(oldBias.Length, oldBias[0].Length);
         for (int i = 0; i < oldBias.Length; i++)
             for (int j = 0; j < oldBias[0].Length; j++)
-                newBias[i][j] = oldBias[i][j] + learningRate * dFirstLayout[i][j];
+                newBias[i][j] = oldBias[i][j] + lr * dFirstLayout[i][j];
 
         return newBias;
     }

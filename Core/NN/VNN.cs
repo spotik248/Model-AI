@@ -14,6 +14,7 @@ class VNN : INeuro // Vector NeuroNetwork
     public string name { get; set; } = "Vector NeuroNetwork";
     public string shortName { get; set; } = "vnn";
     public string desc { get; set; } = "NeuroNetwork which is supposed to working as Perceptron on Vector";
+    public bool onlyPocket { get; set; } = false;
     public ushort countLayout { get; set; } = 4; // ushort = 2 байта, от 0 до 65535
     public int sizeNN { get; set; }
     public int sizeInput;
@@ -159,16 +160,16 @@ class VNN : INeuro // Vector NeuroNetwork
         Mas("Delta input layout:", deltaInput);
 
         //Widthes
-        widthOutput = VLP.Width(widthOutput, layoutHidden, deltaOutput, learningRate);
+        widthOutput = VLP.Width(widthOutput, layoutHidden, deltaOutput, lr);
         Mas("Update width output layout:", widthOutput);
 
-        widthHidden = VLP.Width(widthHidden, layoutMemory, deltaHidden, learningRate*size*dimension);
+        widthHidden = VLP.Width(widthHidden, layoutMemory, deltaHidden, lr*size*dimension);
         Mas("Update width hidden layout:", widthHidden);
 
-        widthMemory = VLP.Width(widthMemory, layoutInput, deltaMemory, learningRate*size*dimension * 3);
+        widthMemory = VLP.Width(widthMemory, layoutInput, deltaMemory, lr*size*dimension * 3);
         Mas("Update width understanding layout:", widthMemory);
 
-        widthInput = VLP.Width(widthInput, quest, deltaInput, learningRate*size*dimension * 5);
+        widthInput = VLP.Width(widthInput, quest, deltaInput, lr*size*dimension * 5);
         Mas("Update width input layout:", widthInput);
 
         //Biases
@@ -189,6 +190,9 @@ class VNN : INeuro // Vector NeuroNetwork
 
         return [Vector.AddAll(error), Vector.AddAll(deltaOutput), Vector.AddAll(deltaHidden), Vector.AddAll(deltaMemory), Vector.AddAll(deltaInput)];
     }
+
+    public double[][][] PredictPocket(double[][][] input) { return []; }
+    public double[][] StudyPocket(double[][][] input, double[][][] output) { return []; }
 
     private static double[] Act(double[] x) => FucAct.Sigmoid(x);
     private static double DAct(double x) => FucAct.DSigmoid(x);
@@ -255,7 +259,7 @@ class VNN : INeuro // Vector NeuroNetwork
             {"biasInput", biasInput},
             {"biasHidden", biasHidden},
             {"biasOutput", biasOutput},
-            {"learningRate", learningRate},
+            {"lr", lr},
             {"dimension", dimension},
             {"checkErrors", checkErrors}
         };
@@ -275,7 +279,7 @@ class VNN : INeuro // Vector NeuroNetwork
         biasMemory = (double[])keyValue["biasMemory"];
         biasHidden = (double[])keyValue["biasHidden"];
         biasOutput = (double[])keyValue["biasOutput"];
-        learningRate = (double)keyValue["learningRate"];
+        lr = (double)keyValue["lr"];
         dimension = (int)keyValue["dimension"];
         checkErrors = (bool)keyValue["checkErrors"];
     }*/

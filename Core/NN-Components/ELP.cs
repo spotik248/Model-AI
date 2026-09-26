@@ -13,12 +13,13 @@ public class ELP : INeuroComponent
 
     public string name { get; set; } = "Emotion Layout Perceptron";
     public string shortName { get; set; } = "elp";
+    public string desc { get; set; } = "Need for emotion";
     public ushort count { get; set; } = 1; // ushort = 2 байта, от 0 до 65535
     public int Size() => sizeELP * count;
 
     public static int sizeELP;
 
-    //private static double learningRate = Global.learningRate; // Пока что (иначе придется создавать для каждого отдельный MLP, пока мне так не надо)
+    //private static double lr = Global.lr; // Пока что (иначе придется создавать для каждого отдельный MLP, пока мне так не надо)
 
     public double[] layout;
     public double[][] width;

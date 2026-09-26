@@ -8,54 +8,54 @@ namespace Model;
 public static class Learn
 {
 
-    public static bool fixedLearningRate;
+    public static bool fixedLR;
     public static double startLR;
-    public static double learningRate;
+    public static double lr;
     public static double minLR;
     public static int epoches;
+    public static int batches;
     public static object[] learn = [];
 
     static Learn() => Start();
 
     public static void Start()
     {
-        fixedLearningRate = false;
+        fixedLR = false;
         startLR = 0.5;
-        learningRate = startLR;
+        lr = startLR;
         minLR = 1E-40;
         epoches = 1;
+        batches = 1;
 
-        SetLearningRate(learningRate);
+        SetFull(lr, epoches, batches);
 
-        SetEpoches(epoches);
-
-        learn = [fixedLearningRate, startLR, learningRate, minLR, epoches];
+        learn = [fixedLR, startLR, lr, minLR, epoches];
     }
 
     public static void UseUpdateLearningRate(int type, double[] errors, int epoch)
     {
-        if(fixedLearningRate) return;
+        if(fixedLR) return;
         
         switch (type)
         {
             // Стандартная, не меняется, пропорциональна стартовой скорости обучения
-            case 0: learningRate = startLR; break;
+            case 0: lr = startLR; break;
             // Inverse Time Decay (обратное затухание во времени)
-            case 1: learningRate = 1.0/(1.0 + 0.01 * epoch); break;
+            case 1: lr = 1.0/(1.0 + 0.01 * epoch); break;
             // Inverse Time Decay Error (обратное затухание во времени на основе ошибки)
-            case 2: learningRate = errors[0]/(1.0 + 0.01 * epoch); break;
+            case 2: lr = errors[0]/(1.0 + 0.01 * epoch); break;
             // Exponential Decay (Экспоненциальное затухание)
-            case 3: learningRate = startLR * Math.Pow(0.95, epoch / 100.0); break;
+            case 3: lr = startLR * Math.Pow(0.95, epoch / 100.0); break;
             // Step Decay (Пошаговое падение)
-            case 4: learningRate = startLR * Math.Pow(0.5, Math.Floor(epoch / 500.0)); break;
+            case 4: lr = startLR * Math.Pow(0.5, Math.Floor(epoch / 500.0)); break;
             //Cosine Annealing (Косинусное затухание)
-            case 5: learningRate = minLR + 0.5 * (startLR - minLR) * (1.0 + Math.Cos(epoch * Math.PI / epoches )); break;
+            case 5: lr = minLR + 0.5 * (startLR - minLR) * (1.0 + Math.Cos(epoch * Math.PI / epoches )); break;
         }
     }
 
     public static void SetLearningRate(double LearningRate)
     {
-        if(LearningRate > 0) learningRate = LearningRate;
+        if(LearningRate > 0) lr = LearningRate;
     }
 
     public static void SetEpoches(int Epoches)
@@ -105,6 +105,35 @@ public static class Learn
         }
         catch(Exception ex)
         {
+            Exc($"Ошибка при попытке обучения {nn[id].name}: ", ex);
+        }
+
+        return null;
+    }
+
+    public static double[][][]? Predict(double[][][] input)
+    {
+        try
+        {
+            return nn[id].PredictPocket(input);
+        }
+        catch(Exception ex)
+        {
+            Exc($"Ошибка при попытке получении ответа от {nn[id].name}: ", ex);
+        }
+        
+        return null;
+    }
+
+    public static double[][]? Study(double[][][] input, double[][][] output)
+    {
+        try
+        {
+            return nn[id].StudyPocket(input, output);
+        }
+        catch(Exception ex)
+        {
+            CheckIt(nn[id].name, ex);
             Exc($"Ошибка при попытке обучения {nn[id].name}: ", ex);
         }
 

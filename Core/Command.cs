@@ -397,7 +397,7 @@ class Command
             case "learn":   NeuroPocketAnalis.General(); break;
             case "window":  StartForm(); break;
             case "updateFrame": canvas.UpdateFrame(); break;
-            case "rate":    learningRate = arged ? double.Parse(arg[0]) : learningRate; MsgLine($"Нейронная сеть обучается со скоростью: '{learningRate}'"); break;
+            case "rate":    lr = arged ? double.Parse(arg[0]) : lr; MsgLine($"Нейронная сеть обучается со скоростью: '{lr}'"); break;
             case "epoches": epoches = arged ? int.Parse(arg[0]) : epoches; MsgLine($"Нейронная сеть обучается '{epoches}' эпох."); break;
             
             // Информация

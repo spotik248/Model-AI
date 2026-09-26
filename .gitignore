@@ -11,3 +11,5 @@ Learneds/
 # Персональные настройки Visual Studio / VS Code
 *.user
 .vscode/
+*.md
+*.txt

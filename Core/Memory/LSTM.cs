@@ -10,32 +10,38 @@ class LSTM : INeuroComponent
 
     public string name { get; set; } = "Long Short-Term Memory"; // Долговременная память
     public string shortName { get; set; } = "lstm";
+    public string desc { get; set; } = "Long Short-Term Memory";
     public ushort count { get; set; } = 1; // ushort = 2 байта, от 0 до 65535
-    public int sizeNN;
+    public static int sizeNN;
     public int Size() => sizeNN * count;
 
-    public LSTM()
-    {
+#pragma warning disable CS8618
 
+    public LSTM(int Size)
+    {
+        sizeNN = Size;
+        InitLSTM();
     }
 
-    public LSTM(int a)
+#pragma warning restore CS8618
+
+    public void InitLSTM()
     {
-        
+
     }
 }
 
 /*public class GRU // Gated Recurrent Units // Управляемые рекуррентные блоки 
 {
     //Из конструктора
-    public int sizeUpdate; public int sizeRestart; public int sizeHidden; public double learningRate; public int dimension; public bool ;
+    public int sizeUpdate; public int sizeRestart; public int sizeHidden; public double lr; public int dimension; public bool ;
     //Самосоздающееся
     public double[][] widthUpdate; public double[][] widthRestart; public double[][] widthHidden; public double[] biasUpdate; public double[] biasRestart; public double[] biasHidden;
     //Классы
     public double[] memoryCell;
     public GRU()
     {
-        learningRate = 0.5;
+        lr = 0.5;
         dimension = 10;
          = true;
         sizeUpdate = 70;
@@ -62,7 +68,7 @@ class LSTM : INeuroComponent
 
     public GRU(int SizeUpdate, int SizeRestart, int SizeHidden, double[] MemoryCell, double LearningRate, int Dimension, bool )
     {
-        learningRate = LearningRate;
+        lr = LearningRate;
         dimension = Dimension;
          = ;
         sizeUpdate = SizeUpdate;
@@ -191,7 +197,7 @@ class LSTM : INeuroComponent
         { //70
             for (int j = 0; j < beforeLayout.Length; j++)
             { //70
-                newthisWidth[j][i] = oldthisWidth[j][i] + learningRate * thisDelta[i] * beforeLayout[j];
+                newthisWidth[j][i] = oldthisWidth[j][i] + lr * thisDelta[i] * beforeLayout[j];
             }
         }
         return newthisWidth;
@@ -202,7 +208,7 @@ class LSTM : INeuroComponent
         double[] newBias = new double[oldBias.Length];
         for (int i = 0; i < delta.Length; i++)
         { // 70
-            newBias[i] = oldBias[i] + learningRate * delta[i];
+            newBias[i] = oldBias[i] + lr * delta[i];
         }
         return newBias;
     }
@@ -310,7 +316,7 @@ class LSTM : INeuroComponent
             {"biasUpdate", biasUpdate},
             {"biasHidden", biasHidden},
             {"biasRestart", biasRestart},
-            {"learningRate", learningRate},
+            {"lr", lr},
             {"dimension", dimension},
             {"", }
         };
@@ -327,7 +333,7 @@ class LSTM : INeuroComponent
         biasUpdate = (double[])keyValue["biasUpdate"];
         biasRestart = (double[])keyValue["biasRestart"];
         biasHidden = (double[])keyValue["biasHidden"];
-        learningRate = (double)keyValue["learningRate"];
+        lr = (double)keyValue["lr"];
         dimension = (int)keyValue["dimension"];
          = (bool)keyValue[""];
     }

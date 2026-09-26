@@ -15,6 +15,7 @@ class Attention : INeuroComponent // Attention // Внимание
 
     public string name { get; set; } = "Attention";
     public string shortName { get; set; } = "att";
+    public string desc { get; set; } = "Attention";
     public ushort count { get; set; } = 4; // ushort = 2 байта, от 0 до 65535
     public int Size() => sizeAtt * count;
 
@@ -251,7 +252,7 @@ class Attention : INeuroComponent // Attention // Внимание
     {
         for (int i = 0; i < oldthisWidth.Length; i++)
             for (int j = 0; j < oldthisWidth.Length; j++)
-                oldthisWidth[i][j] = oldthisWidth[i][j] - learningRate * grad[i][j];
+                oldthisWidth[i][j] = oldthisWidth[i][j] - lr * grad[i][j];
 
         return oldthisWidth;
     }
@@ -310,7 +311,7 @@ class Attention : INeuroComponent // Attention // Внимание
                 {"biasQuery", biasQuery},
                 {"biasValue", biasValue},
                 {"biasKey", biasKey},
-                {"learningRate", learningRate},
+                {"lr", lr},
                 {"dimension", dimension},
                 {"", }
             };
@@ -327,7 +328,7 @@ class Attention : INeuroComponent // Attention // Внимание
         biasQuery = (double[])keyValue["biasQuery"];
         biasKey = (double[])keyValue["biasKey"];
         biasValue = (double[])keyValue["biasValue"];
-        learningRate = (double)keyValue["learningRate"];
+        lr = (double)keyValue["lr"];
         dimension = (int)keyValue["dimension"];
          = (bool)keyValue[""];
     }*/

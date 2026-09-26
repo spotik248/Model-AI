@@ -13,6 +13,7 @@ class INN// : INeuro // Recurrent NeuroNetwork
     public string name { get; set; } = "Image NeuroNetwork";
     public string shortName { get; set; } = "inn";
     public string desc { get; set; } = "NeuroNetwork which supposed to recognize an image as words";
+    public bool onlyPocket { get; set; } = false;
     public ushort countLayout { get; set; } = 2; // ushort = 2 байта, от 0 до 65535
     public int sizeNN { get; set; }
     public int sizeInput;
@@ -41,7 +42,7 @@ class INN// : INeuro // Recurrent NeuroNetwork
     //Классы
     //public GRU memory;
 
-    private double learningRate => learningRate;
+    private double lr => lr;
     private Random random;
 
 #pragma warning disable CS8618
@@ -221,25 +222,28 @@ class INN// : INeuro // Recurrent NeuroNetwork
         {
             for (int k = 0; k < outputSize; k++)
             {
-                weightsHiddenOutput[j][k] -= learningRate * deltaOutput[k] * hiddenLayers[j];
+                weightsHiddenOutput[j][k] -= lr * deltaOutput[k] * hiddenLayers[j];
             }
         }
         for (int k = 0; k < outputSize; k++)
-            biasOutput[k] -= learningRate * deltaOutput[k];
+            biasOutput[k] -= lr * deltaOutput[k];
 
         // Обновление весов вход -> скрытый
         for (int i = 0; i < inputSize; i++)
         {
             for (int j = 0; j < hiddenSize; j++)
             {
-                weightsInputHidden[i][j] -= learningRate * deltaHidden[j] * input[i];
+                weightsInputHidden[i][j] -= lr * deltaHidden[j] * input[i];
             }
         }
         for (int j = 0; j < hiddenSize; j++)
-            biasHidden[j] -= learningRate * deltaHidden[j];
+            biasHidden[j] -= lr * deltaHidden[j];
     }
     
     */
+
+    public double[][][] PredictPocket(double[][][] input) { return []; }
+    public double[][] StudyPocket(double[][][] input, double[][][] output) { return []; }
 
     private static double Act(double x) => FucAct.Sigmoid(x);
     private static double[] Act(double[] x) => FucAct.Sigmoid(x);
@@ -306,7 +310,7 @@ class INN// : INeuro // Recurrent NeuroNetwork
             {"biasInput", biasInput},
             {"biasHidden", biasHidden},
             {"biasOutput", biasOutput},
-            {"learningRate", learningRate},
+            {"lr", lr},
             {"dimension", dimension},
             {"", }
         };
@@ -326,7 +330,7 @@ class INN// : INeuro // Recurrent NeuroNetwork
         biasMemory = (double[])keyValue["biasMemory"];
         biasHidden = (double[])keyValue["biasHidden"];
         biasOutput = (double[])keyValue["biasOutput"];
-        learningRate = (double)keyValue["learningRate"];
+        lr = (double)keyValue["lr"];
         dimension = (int)keyValue["dimension"];
          = (bool)keyValue[""];
     }*/

@@ -9,7 +9,7 @@ namespace Model;
 
 public static class VLP // Vector Layout Propagation
 {
-    private static double learningRate => Learn.learningRate;
+    private static double lr => Learn.lr;
 
     // Проход
 
@@ -65,20 +65,20 @@ public static class VLP // Vector Layout Propagation
         double[][] newthisWidth = Init.Double<double>(oldthisWidth[0].Length, oldthisWidth.Length);
         for (int i = 0; i < thisDelta.Length; i++)
             for (int j = 0; j < oldthisWidth.Length; j++)
-                newthisWidth[j][i] = oldthisWidth[j][i] - learningRate * thisDelta[i] * beforeLayout[j];
+                newthisWidth[j][i] = oldthisWidth[j][i] - lr * thisDelta[i] * beforeLayout[j];
 
-        //Write.Line($"Прибавленно к весу: {Matrix.Mean(oldthisWidth)} += {Vector.MultAddAll(Init.Full(learningRate, beforeLayout.Length * thisDelta.Length), Vector.MultAllN(thisDelta, beforeLayout)) / (beforeLayout.Length * thisDelta.Length)}");
+        //Write.Line($"Прибавленно к весу: {Matrix.Mean(oldthisWidth)} += {Vector.MultAddAll(Init.Full(lr, beforeLayout.Length * thisDelta.Length), Vector.MultAllN(thisDelta, beforeLayout)) / (beforeLayout.Length * thisDelta.Length)}");
         return newthisWidth;
     }
 
-    public static double[][] Width(double[][] oldthisWidth, double[] beforeLayout, double[] thisDelta, double learningRate)
+    public static double[][] Width(double[][] oldthisWidth, double[] beforeLayout, double[] thisDelta, double lr)
     {
         double[][] newthisWidth = Init.Double<double>(oldthisWidth[0].Length, oldthisWidth.Length);
         for (int i = 0; i < thisDelta.Length; i++)
             for (int j = 0; j < oldthisWidth.Length; j++)
-                newthisWidth[j][i] = oldthisWidth[j][i] - learningRate * thisDelta[i] * beforeLayout[j];
+                newthisWidth[j][i] = oldthisWidth[j][i] - lr * thisDelta[i] * beforeLayout[j];
 
-        //Write.Line($"Прибавленно к весу: {Matrix.Mean(oldthisWidth)} += {Vector.MultAddAll(Init.Full(learningRate, beforeLayout.Length * thisDelta.Length), Vector.MultAllN(thisDelta, beforeLayout)) / (beforeLayout.Length * thisDelta.Length)}");
+        //Write.Line($"Прибавленно к весу: {Matrix.Mean(oldthisWidth)} += {Vector.MultAddAll(Init.Full(lr, beforeLayout.Length * thisDelta.Length), Vector.MultAllN(thisDelta, beforeLayout)) / (beforeLayout.Length * thisDelta.Length)}");
         return newthisWidth;
     }
 
@@ -86,7 +86,7 @@ public static class VLP // Vector Layout Propagation
     {
         double[] newBias = new double[oldBias.Length];
         for (int i = 0; i < delta.Length; i++)
-            newBias[i] = oldBias[i] - learningRate * delta[i];
+            newBias[i] = oldBias[i] - lr * delta[i];
 
         return newBias;
     }

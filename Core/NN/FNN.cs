@@ -14,6 +14,7 @@ class FNN : INeuro // Function NeuroNetwork
     public string name { get; set; } = "Function NeuroNetwork";
     public string shortName { get; set; } = "fnn";
     public string desc { get; set; } = "NeuroNetwork which is supposed to working";
+    public bool onlyPocket { get; set; } = false;
     public ushort countLayout { get; set; } = 6; // ushort = 2 байта, от 0 до 65535
     public int sizeNN { get; set; }
     public int Size() => sizeNN * countLayout + SizeSLP() + SizeAtt() + memory.Size();
@@ -28,10 +29,10 @@ class FNN : INeuro // Function NeuroNetwork
 #pragma warning disable CS0649
 
     //Многослойный проход
-    public SLP SLPInput;
-    public SLP SLPMemory;
-    public SLP SLPHidden;
-    public SLP SLPOutput;
+    public DLP SLPInput;
+    public DLP SLPMemory;
+    public DLP SLPHidden;
+    public DLP SLPOutput;
     
     //Самосоздающееся веса
     public double[][] widthInput;
@@ -94,10 +95,10 @@ class FNN : INeuro // Function NeuroNetwork
         deltaHidden ??= Init.Zeros(size, dimension);
         deltaOutput ??= Init.Zeros(size, dimension);
 
-        SLPInput  ??= new SLP(size);
-        SLPMemory ??= new SLP(size);
-        SLPHidden ??= new SLP(size);
-        SLPOutput ??= new SLP(size);
+        SLPInput  ??= new DLP(size);
+        SLPMemory ??= new DLP(size);
+        SLPHidden ??= new DLP(size);
+        SLPOutput ??= new DLP(size);
 
         SelfAttention ??= new Attention(size);
         OutputAttention ??= new Attention(size);
@@ -219,6 +220,9 @@ class FNN : INeuro // Function NeuroNetwork
         return [error, Matrix.AddAll(deltaOutAtt), Matrix.AddAll(deltaOutput), Matrix.AddAll(deltaMemory), Matrix.AddAll(deltaInput)];
     }
 
+    public double[][][] PredictPocket(double[][][] input) { return []; }
+    public double[][] StudyPocket(double[][][] input, double[][][] output) { return []; }
+
     private static double[] Act(double[] x) => FucAct.Sigmoid(x);
     private static double DAct(double x) => FucAct.DSigmoid(x);
     private static double[] DAct(double[] x) => FucAct.DSigmoid(x);
@@ -284,7 +288,7 @@ class FNN : INeuro // Function NeuroNetwork
             {"biasInput", biasInput},
             {"biasHidden", biasHidden},
             {"biasOutput", biasOutput},
-            {"learningRate", learningRate},
+            {"lr", lr},
             {"dimension", dimension},
             {"", }
         };
@@ -304,7 +308,7 @@ class FNN : INeuro // Function NeuroNetwork
         biasMemory = (double[])keyValue["biasMemory"];
         biasHidden = (double[])keyValue["biasHidden"];
         biasOutput = (double[])keyValue["biasOutput"];
-        learningRate = (double)keyValue["learningRate"];
+        lr = (double)keyValue["lr"];
         dimension = (int)keyValue["dimension"];
          = (bool)keyValue[""];
     }*/

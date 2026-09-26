@@ -1,11 +1,318 @@
-Инициализация...
-Тип нейронной сети изменен на Local NeuroNetwork (lnn)
-NeuroNetwork
-Инициализация Данных закончена...
+[MsgLine] 2026.09.25 23:39:31 NAnalis: Обработка слов...
 
-/load
-Unhandled exception. System.FormatException: The input string '/load' was not in a correct format.
-   at System.Number.ThrowFormatException[TChar](ReadOnlySpan`1 value)
-   at System.Int32.Parse(String s)
-   at Model.Model.AnotherRouter(String input) in C:\Users\964\All-project\Project-AI\Model.cs:line 138
-   at Model.Model.Main() in C:\Users\964\All-project\Project-AI\Model.cs:line 70
+[MsgLine] 2026.09.25 23:39:31 NAnalis:
+Text: что такое яблоко? ответ зеленый фрукт
+
+[Debug] 2026.09.25 23:39:31 NAnalis: Исключение для PreNAnalis не произошло
+[MsgLine] 2026.09.25 23:39:31 NAnalis: Векторизация токенов...
+
+[Mas] 2026.09.25 23:39:31 NAnalis: Добавляем токены:
+    [что, ?, фрукт]
+<--7
+
+[MsgLine] 2026.09.25 23:39:31 NAnalis: Обучение нейронной сети...
+[Mas] 2026.09.25 23:39:31 NAnalis: inputLayout
+    [0,339, 0,5, 0,5]
+<--100
+
+[Mas] 2026.09.25 23:39:31 Learn: inputLayout
+    [0,339, 0,5, 0,5]
+<--100
+
+[Mas] 2026.09.25 23:39:31 Learn: outputLayout
+    [0,46, 0,4, 0,583]
+<--100
+
+[Mas] 2026.09.25 23:39:31 NAnalis: outputLayout
+    [0,46, 0,4, 0,583]
+<--100
+
+[Mas] 2026.09.25 23:39:31 NAnalis: target
+    [0,093, 0,5, 0,5]
+<--100
+
+[Exc] 2026.09.25 23:39:31 Learn: Ошибка при попытке обучения Self Making NeuroNetwork:
+System.IndexOutOfRangeException: Index was outside the bounds of the array.
+   at Model.SMP.Update(Double[] target) in C:\Users\964\All-project\Project-AI\Core\NN-Components\SMP.cs:line 67
+   at Model.SMNN.Study(Double[][] input, Double[][] output) in C:\Users\964\All-project\Project-AI\Core\NN\SMNN.cs:line 108
+   at Model.Learn.Study(Double[][] input, Double[][] output) in C:\Users\964\All-project\Project-AI\Core\Learn.cs:line 104
+[Err] 2026.09.25 23:39:31 NAnalis: Answer of Predict is null or lengthes are zeros
+
+
+
+///////
+
+
+[Exc] 2026.09.25 23:40:49 Learn: Ошибка при попытке обучения Function NeuroNetwork:
+System.IndexOutOfRangeException: Index was outside the bounds of the array.
+   at Model.MLP.Delta(Double[][] beforeDelta, Double[][] thisLayout, Double[][] thisWidth) in C:\Users\964\All-project\Project-AI\Core\NN-Components\MLP.cs:line 38
+   at Model.FNN.Study(Double[][] input, Double[][] output) in C:\Users\964\All-project\Project-AI\Core\NN\FNN.cs:line 173
+   at Model.Learn.Study(Double[][] input, Double[][] output) in C:\Users\964\All-project\Project-AI\Core\Learn.cs:line 104
+[Err] 2026.09.25 23:40:49 NAnalis: Answer of Predict is null or lengthes are zeros
+
+
+///////
+
+
+[MsgLine] 2026.09.25 23:42:14 NAnalis: Скорость обучения: 0,4757314921102831
+[MsgLine] 2026.09.25 23:42:14 NAnalis: Общая ошибка нейросети: не число
+[MsgLine] 2026.09.25 23:42:14 NAnalis: Обучено на 98%
+[MsgLine] 2026.09.25 23:42:14 NAnalis: Пройдено эпох: 98/100
+[Mas] 2026.09.25 23:42:14 Learn: Question:
+    [0,321, 0,818, 0,73]
+    [0,039, 0,059, 0,24]
+    [0,911, 0,811, 0,592]
+<--4x10
+
+[Mas] 2026.09.25 23:42:14 Learn: quest
+    [0,321, 0, 0]
+<--1000
+
+[Mas] 2026.09.25 23:42:14 Learn: quest -> input layout:
+    [не число, не число, не число]
+<--1000
+
+[Mas] 2026.09.25 23:42:14 Learn: input -> memory layout:
+    [не число, не число, не число]
+<--1000
+
+[Mas] 2026.09.25 23:42:14 Learn: memory -> hidden layout:
+    [не число, не число, не число]
+<--1000
+
+[Mas] 2026.09.25 23:42:14 Learn: hidden -> output layout:
+    [не число, не число, не число]
+<--1000
+
+[Mas] 2026.09.25 23:42:14 NAnalis: input:
+    [0,321, 0,818, 0,73]
+    [0,039, 0,059, 0,24]
+    [0,911, 0,811, 0,592]
+<--4x10
+
+[Mas] 2026.09.25 23:42:14 NAnalis: output:
+    [0,093, 0,494, 0,161]
+    [0,898, 0,833, 0,651]
+<--2x10
+
+[Mas] 2026.09.25 23:42:14 NAnalis: quest
+    [0,321, 0, 0]
+<--1000
+
+[Mas] 2026.09.25 23:42:14 NAnalis: answer
+    [0,093, 0, 0]
+<--1000
+
+[Mas] 2026.09.25 23:42:14 NAnalis: layoutOutput:
+    [не число, не число, не число]
+<--1000
+
+[Mas] 2026.09.25 23:42:14 NAnalis: answer:
+    [0,093, 0, 0]
+<--1000
+
+[Mas] 2026.09.25 23:42:14 NAnalis: Delta output layout:
+    [не число, не число, не число]
+<--1000
+
+[Mas] 2026.09.25 23:42:14 NAnalis: Delta hidden layout:
+    [не число, не число, не число]
+<--1000
+
+[Mas] 2026.09.25 23:42:14 NAnalis: Delta memory layout:
+    [не число, не число, не число]
+<--1000
+
+[Mas] 2026.09.25 23:42:14 NAnalis: Delta input layout:
+    [не число, не число, не число]
+<--1000
+
+[Mas] 2026.09.25 23:42:14 NAnalis: Update width output layout:
+    [не число, не число, не число]
+    [не число, не число, не число]
+    [не число, не число, не число]
+<--1000x1000
+
+[Mas] 2026.09.25 23:42:14 NAnalis: Update width hidden layout:
+    [не число, не число, не число]
+    [не число, не число, не число]
+    [не число, не число, не число]
+<--1000x1000
+
+[Mas] 2026.09.25 23:42:14 NAnalis: Update width understanding layout:
+    [не число, не число, не число]
+    [не число, не число, не число]
+    [не число, не число, не число]
+<--1000x1000
+
+[Mas] 2026.09.25 23:42:14 NAnalis: Update width input layout:
+    [не число, не число, не число]
+    [не число, не число, не число]
+    [не число, не число, не число]
+<--1000x1000
+
+[Mas] 2026.09.25 23:42:14 NAnalis: Update bias output layout:
+    [не число, не число, не число]
+<--1000
+
+[Mas] 2026.09.25 23:42:14 NAnalis: Update bias hidden layout:
+    [не число, не число, не число]
+<--1000
+
+[Mas] 2026.09.25 23:42:14 NAnalis: Update bias understanding layout:
+    [не число, не число, не число]
+<--1000
+
+[Mas] 2026.09.25 23:42:14 NAnalis: Update bias input layout:
+    [не число, не число, не число]
+<--1000
+
+[MsgLine] 2026.09.25 23:42:14 NAnalis: Скорость обучения: 0,4754875363273684
+[MsgLine] 2026.09.25 23:42:14 NAnalis: Общая ошибка нейросети: не число
+[MsgLine] 2026.09.25 23:42:14 NAnalis: Обучено на 99%
+[MsgLine] 2026.09.25 23:42:14 NAnalis: Пройдено эпох: 99/100
+[MsgLine] 2026.09.25 23:42:14 NAnalis: Обучение окончено, прошло 100 эпох
+[MsgLine] 2026.09.25 23:42:14 NAnalis: Получение ответа от нейронной сети...
+[Mas] 2026.09.25 23:42:14 NAnalis: Question:
+    [0,321, 0,818, 0,73]
+    [0,039, 0,059, 0,24]
+    [0,911, 0,811, 0,592]
+<--4x10
+
+[Mas] 2026.09.25 23:42:14 NAnalis: quest
+    [0,321, 0, 0]
+<--1000
+
+[Mas] 2026.09.25 23:42:14 NAnalis: quest -> input layout:
+    [не число, не число, не число]
+<--1000
+
+[Mas] 2026.09.25 23:42:14 NAnalis: input -> memory layout:
+    [не число, не число, не число]
+<--1000
+
+[Mas] 2026.09.25 23:42:14 NAnalis: memory -> hidden layout:
+    [не число, не число, не число]
+<--1000
+
+[Mas] 2026.09.25 23:42:14 NAnalis: hidden -> output layout:
+    [не число, не число, не число]
+<--1000
+
+[Err] 2026.09.25 23:42:14 NAnalis: Results of GetMean are null
+
+
+///////////
+
+
+[MsgLine] 2026.09.25 23:42:59 NAnalis: Обработка слов...
+
+[MsgLine] 2026.09.25 23:42:59 NAnalis:
+Text: что такое яблоко? ответ зеленый фрукт
+
+[Debug] 2026.09.25 23:42:59 NAnalis: Исключение для PreNAnalis не произошло
+[MsgLine] 2026.09.25 23:42:59 NAnalis: Векторизация токенов...
+
+[Mas] 2026.09.25 23:42:59 NAnalis: Добавляем токены:
+    [что, ?, фрукт]
+<--7
+
+[MsgLine] 2026.09.25 23:42:59 NAnalis: Обучение нейронной сети...
+[Mas] 2026.09.25 23:42:59 Learn: Question:
+    [0,321, 0,818, 0,73]
+    [0,039, 0,059, 0,24]
+    [0,911, 0,811, 0,592]
+<--4x10
+
+[CHECKIT!] 2026.09.25 23:42:59 TNN: 'scores'
+    [0,045, 0, 0]
+    [0, 0, 0]
+    [0, 0, 0]
+<--100x100
+
+[CHECKIT!] 2026.09.25 23:42:59 TNN: 'actAttention'
+    [0,01, 0,01, 0,01]
+    [0,01, 0,01, 0,01]
+    [0,01, 0,01, 0,01]
+<--100x100
+
+[Mas] 2026.09.25 23:42:59 Learn: quest -> input layout:
+    [0,01, 0,01, 0,01]
+    [0,01, 0,01, 0,01]
+    [0,01, 0,01, 0,01]
+<--10x10
+
+[Mas] 2026.09.25 23:42:59 Learn: input -> memory layout:
+    [0,01, 0,01, 0,01]
+    [0,01, 0,01, 0,01]
+    [0,01, 0,01, 0,01]
+<--10x10
+
+[Mas] 2026.09.25 23:42:59 Learn: memory -> hidden layout:
+    [0,01, 0,01, 0,01]
+    [0,01, 0,01, 0,01]
+    [0,01, 0,01, 0,01]
+<--10x10
+
+[Mas] 2026.09.25 23:42:59 Learn: hidden -> connect layout:
+    [0,01, 0,01, 0,01]
+    [0,01, 0,01, 0,01]
+    [0,01, 0,01, 0,01]
+<--10x10
+
+[CHECKIT!] 2026.09.25 23:42:59 TNN: 'scores'
+    [0, 0, 0]
+    [0, 0, 0]
+    [0, 0, 0]
+<--10x10
+
+[CHECKIT!] 2026.09.25 23:42:59 TNN: 'actAttention'
+    [0,1, 0,1, 0,1]
+    [0,1, 0,1, 0,1]
+    [0,1, 0,1, 0,1]
+<--10x10
+
+[Mas] 2026.09.25 23:42:59 TNN: input:
+    [0,011, 0,014, 0,011]
+    [0,011, 0,014, 0,011]
+    [0,011, 0,014, 0,011]
+<--10x10
+
+[Mas] 2026.09.25 23:42:59 Attention: size:
+   [100]
+
+[Mas] 2026.09.25 23:42:59 Learn: attention -> cross layout:
+    [0,01, 0,01, 0,01]
+    [0,01, 0,01, 0,01]
+    [0,01, 0,01, 0,01]
+<--10x10
+
+[Mas] 2026.09.25 23:42:59 Learn: cross -> social layout:
+    [0,01, 0,01, 0,01]
+    [0,01, 0,01, 0,01]
+    [0,01, 0,01, 0,01]
+<--10x10
+
+[Mas] 2026.09.25 23:42:59 Learn: social -> output layout:
+    [0,01, 0,01, 0,01]
+    [0,01, 0,01, 0,01]
+    [0,01, 0,01, 0,01]
+<--10x10
+
+[Mas] 2026.09.25 23:42:59 TNN: input:
+    [0,011, 0,014, 0,011]
+    [0,011, 0,014, 0,011]
+    [0,011, 0,014, 0,011]
+<--10x10
+
+[Mas] 2026.09.25 23:42:59 Attention: size:
+   [100]
+
+[Exc] 2026.09.25 23:42:59 Learn: Ошибка при попытке обучения Transformer NeuroNetwork:
+System.IndexOutOfRangeException: Index was outside the bounds of the array.
+   at Model.Matrix.Mult(Double[][] mas1, Double[][] mas2) in C:\Users\964\All-project\Project-AI\Core\Math\Matrix.cs:line 35
+   at Model.DLP.Delta(Double[][] beforeDelta, Double[][] thisLayout, Double[][][] thisWidth, Double[][] thisBias) in C:\Users\964\All-project\Project-AI\Core\NN-Components\DLP.cs:line 74
+   at Model.TNN.FullUpdate(Double[][] rigthAnswer, Double[][] finallyAnswer, Double[][] crossAnswer, Double[][] quest) in C:\Users\964\All-project\Project-AI\Core\NN\TNN.cs:line 268
+   at Model.TNN.Study(Double[][] input, Double[][] output) in C:\Users\964\All-project\Project-AI\Core\NN\TNN.cs:line 176
+   at Model.Learn.Study(Double[][] input, Double[][] output) in C:\Users\964\All-project\Project-AI\Core\Learn.cs:line 104
+[Err] 2026.09.25 23:42:59 NAnalis: Answer of Predict is null or lengthes are zeros

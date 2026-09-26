@@ -19,6 +19,7 @@ public static class Library
         Library.dimension = dimension;
     }
 
+
     public static void AddWords(string[] input)
     {
         if(words.Count() == words.Length) // Если библиотека полностью заполнена
@@ -79,7 +80,7 @@ public static class Library
 
         for(int i = 0; i < vector.Length; i++)
         {
-            vector[i] -= learningRate * error[i];
+            vector[i] -= lr * error[i];
         }
     }
 
@@ -106,11 +107,12 @@ public static class Library
             //CheckIt("words[i].token", words[i].token);
 
             for(int j = 0; j < vector.Length; j++)
-                vector[j] -= learningRate * error[i][j];
+                vector[j] -= lr * error[i][j];
 
             Library.words[id[i]].vector = vector;
         }
     }
+
 
     public static double[][] Quest(string[] tokens, int index) // индекс всегда не равен -1
     {
@@ -165,6 +167,8 @@ public static class Library
 
         return questVector;
     }
+
+    // TODO: добавить работу с эмбеддингами: перенести методы из NAnalis.Pre, NAnalis.GetMean
 
     public static Word IdToWord(int id)
     {

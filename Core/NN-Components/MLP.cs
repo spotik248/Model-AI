@@ -9,7 +9,7 @@ namespace Model;
 
 public static class MLP // Matrix Layout Propagation
 {
-    private static double learningRate => Learn.learningRate;
+    private static double lr => Learn.lr;
 
     //Проход
 
@@ -61,7 +61,7 @@ public static class MLP // Matrix Layout Propagation
             for (int j = 0; j < cols; j++)
             {
                 // Новый_Вес = Старый_Вес - lr * Дельта * Вход_Слоя
-                newthisWidth[i][j] = oldthisWidth[i][j] - learningRate * thisDelta[i][j] * beforeLayout[i][j];
+                newthisWidth[i][j] = oldthisWidth[i][j] - lr * thisDelta[i][j] * beforeLayout[i][j];
             }
         }
         return newthisWidth;
@@ -75,7 +75,7 @@ public static class MLP // Matrix Layout Propagation
         {
             for (int j = 0; j < oldBias[0].Length; j++) // Исправлено: теперь идет до 20, а не до 100
             {
-                newBias[i][j] = oldBias[i][j] - learningRate * delta[i][j];
+                newBias[i][j] = oldBias[i][j] - lr * delta[i][j];
             }
         }
         return newBias;

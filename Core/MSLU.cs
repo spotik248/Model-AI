@@ -20,7 +20,7 @@ class MSLU // Model Save Load Update
 
         Util.Save(GetPathFile("learn_data"), learn); // CheckIt
 
-        Util.Save(GetPathFile("lnn_data"), (LNN)nn[0]);
+        Util.Save(GetPathFile("lnn_data"), (PNN)nn[0]);
     }
 
     // ["setting", @"Setting.json"],
@@ -50,7 +50,7 @@ class MSLU // Model Save Load Update
 
         //learn = Util.Load(files["learn_data"], learn);
 
-        nn[0] = Util.Load(files["lnn_data"], (LNN)nn[0]);
+        nn[0] = Util.Load(files["lnn_data"], (PNN)nn[0]);
     }
 
     //ModelData, WordsData, RNNData, TNNData, Setting, Data
@@ -73,7 +73,7 @@ class MSLU // Model Save Load Update
                 {"dimension", dimension},
                 {"", },
                 {"size", size},
-                {"learningRate", learningRate},
+                {"lr", lr},
                 {"minLR", minLR},
                 {"cnn", cnn},
                 {"epoch", epoch},
@@ -92,7 +92,7 @@ class MSLU // Model Save Load Update
             files = (string[])variable["files"];
             sortedFiles = (string[][])variable["sortedFiles"];//
             dimension = (int)variable["dimension"];  = (bool)variable[""]; size = (int)variable["size"];//
-            learningRate = (double)variable["learningRate"]; minLR = (double)variable["minLR"];//
+            lr = (double)variable["lr"]; minLR = (double)variable["minLR"];//
             epoch = (int)variable["epoch"]; epoches = (int)variable["epoches"];//
             words = (Word[])variable["words"];
             gru = (GRU)variable["gru"]; rnn = (MNN)variable["rnn"]; tnn = (TNN)variable["tnn"];//

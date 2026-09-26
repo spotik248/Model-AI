@@ -2,54 +2,37 @@
 
 namespace Model;
 
-public struct Matrix
+public struct GruMatrix
 {
 
-    #region Выражения
+    #region Выражения (Вычисления происходят на GPU)
 
-    // Простые выражения
-    public static double[][] Add(double[][] mas1, double[][] mas2)
+    // Поэлементное сложение двух матриц на GPU
+    public static ArrayFire.Array Add(ArrayFire.Array mas1, ArrayFire.Array mas2)
     {
-        double[][] mas = Init.Double<double>(mas1.Length, mas1[0].Length);
-
-        for (int i = 0; i < mas1.Length; i++)
-            for (int j = 0; j < mas1[0].Length; j++)
-                mas[i][j] = mas1[i][j] + mas2[i][j];
-
-        return mas;
+        // Вместо циклов — один перегруженный оператор.
+        // Вычисления автоматически улетают на вашу видеокарту AMD.
+        return mas1 + mas2;
     }
 
-    public static double[][] Sub(double[][] mas1, double[][] mas2)
+    // Поэлементное вычитание на GPU
+    public static ArrayFire.Array Sub(ArrayFire.Array mas1, ArrayFire.Array mas2)
     {
-        double[][] mas = Init.Double<double>(mas1.Length, mas1[0].Length);
-
-        for (int i = 0; i < mas1.Length; i++)
-            for (int j = 0; j < mas1[0].Length; j++)
-                mas[i][j] = mas1[i][j] - mas2[i][j];
-
-        return mas;
+        return mas1 - mas2;
     }
     
-    public static double[][] Mult(double[][] mas1, double[][] mas2)
+    // Поэлементное (Hadamard) умножение матриц на GPU (матрица на матрицу того же размера)
+    public static ArrayFire.Array Mult(ArrayFire.Array mas1, ArrayFire.Array mas2)
     {
-        double[][] mas = Init.Double<double>(mas1.Length, mas1[0].Length);
-
-        for (int i = 0; i < mas1.Length; i++)
-            for (int j = 0; j < mas1[0].Length; j++)
-                mas[i][j] = mas1[i][j] * mas2[i][j];
-
-        return mas;
+        // В декомпилированном листинге оператор * вызывает AFArith.af_mul, 
+        // что означает именно поэлементное умножение.
+        return mas1 * mas2;
     }
 
-    public static double[][] Div(double[][] mas1, double[][] mas2)
+    // Поэлементное деление на GPU
+    public static ArrayFire.Array Div(ArrayFire.Array mas1, ArrayFire.Array mas2)
     {
-        double[][] mas = Init.Double<double>(mas1.Length, mas1[0].Length);
-
-        for (int i = 0; i < mas1.Length; i++)
-            for (int j = 0; j < mas1[0].Length; j++)
-                mas[i][j] = mas1[i][j] / mas2[i][j];
-
-        return mas;
+        return mas1 / mas2;
     }
     
     // Mas выражения

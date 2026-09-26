@@ -61,7 +61,8 @@ static class NAnalis
             idsAnswer = [];
         }
 
-        if (answerVector == null) learn = false; // TODO: Исключение
+        if (answerVector == null)
+            learn = false;
 
         return (questVector, answerVector, learn);
     }
@@ -74,7 +75,7 @@ static class NAnalis
         
         if(questVector == null)
         {
-            Err("Произошла ошибка во время обработки текста, для: "+input);
+            Err("Произошла ошибка во время обработки текста для: "+input);
             return;
         }
         
@@ -83,7 +84,6 @@ static class NAnalis
         double[][]? answer = Learning(questVector, answerVector, learn);
 
         // ### Формирование слов из double[][] ### //
-
         if(answer == null || answer.Length == 0 || answer[0].Length == 0)
         {
             Err("Answer of Predict is null or lengthes are zeros");
@@ -92,7 +92,7 @@ static class NAnalis
 
         //CheckIt("answer", answer);
 
-        var (percentMean, indexWords, indexAnswer) = GetMeanNew(answer, 0.9); // Точность ответа в сотых (один процент)
+        var (percentMean, indexWords, indexAnswer) = GetMean(answer, 0.9); // Точность ответа в сотых (один процент)
         
         if (percentMean == null || indexWords == null || indexAnswer == null)
         {
@@ -100,8 +100,7 @@ static class NAnalis
             return;
         }
 
-        // ### Пост анализ ### //
-
+        // ### Выдача ответа и логи ### //
         Post(percentMean, indexWords, indexAnswer, questVector);
     }
 
@@ -117,7 +116,7 @@ static class NAnalis
 
             double[][] Errors = new double[epoches][];
 
-            fixedLearningRate = false;
+            fixedLR = false;
 
             for (int epoch = 0; epoch < epoches; epoch++)
             {
@@ -126,7 +125,7 @@ static class NAnalis
                 if(errors == null) return null;
 
 
-                MsgLine($"Скорость обучения: {learningRate}");
+                MsgLine($"Скорость обучения: {lr}");
                 MsgLine($"Общая ошибка нейросети: {errors[0]}");
                 MsgLine($"Обучено на {100 * epoch / epoches}%");
                 MsgLine($"Пройдено эпох: {epoch}/{epoches}");
@@ -148,7 +147,7 @@ static class NAnalis
         return answer;
     }
 
-    public static (double[]?, int[]?, int[]?) GetMeanNew(double[][]? predictAnswers, double percent)
+    public static (double[]?, int[]?, int[]?) GetMean(double[][]? predictAnswers, double percent)
     {
         if (predictAnswers == null) return (null, null, null);
         
@@ -159,7 +158,7 @@ static class NAnalis
         var outWordIndexes = new List<int>();
         var outAnswerIndexes = new List<int>();
 
-        // 2. Идем строго по порядку сгенерированных позиций (токенов) ответа
+        // Идем строго по порядку сгенерированных позиций (токенов) ответа
         for (int j = 0; j < filterAnswer.Length; j++)
         {
             double maxSimilarity = -1;
@@ -168,7 +167,8 @@ static class NAnalis
             // Ищем во всем словаре слово, вектор которого ближе всего к filterAnswer[j]
             for (int i = 0; i < words.Count(); i++)
             {
-                double similarity = Math.MeanVector(words[i].vector, filterAnswer[j]); // возвращает 1 если абс. совпадение и 0 если точно нет
+                // возвращает 1 если абс. совпадение и 0 если точно нет
+                double similarity = Math.MeanVector(words[i].vector, filterAnswer[j]); 
                 
                 if (similarity > maxSimilarity)
                 {
@@ -177,106 +177,16 @@ static class NAnalis
                 }
             }
 
-            // 3. Отсекаем слишком слабые совпадения по вашему порогу процентов
+            // Отсекаем по проценту
             if (maxSimilarity >= percent && bestWordIndex != -1)
             {
                 outPercent.Add(maxSimilarity);
                 outWordIndexes.Add(bestWordIndex);
-                outAnswerIndexes.Add(j); // Сохраняем исходный хронологический порядок!
+                outAnswerIndexes.Add(j); // Сохраняем исходный хронологический порядок
             }
         }
 
         return (outPercent.ToArray(), outWordIndexes.ToArray(), outAnswerIndexes.ToArray());
-    }
-
-    public static (double[]?, int[]?, int[]?) GetMeanOld(double[][]? predictAnswers, double percent)
-    {
-        // После нахождения ответа и/или обучения:
-
-        if (predictAnswers == null) return (null, null, null);
-        double[][] filterAnswer = Math.Filter(predictAnswers, Init.Full(0.0, dimension), Init.Full(0.01, dimension), Init.Full(0.5, dimension));
-        Msg("Answer Neuronetwork");
-
-        double[][] meanPercent = Init.Double<double>(3, words.Count() * filterAnswer.Length); // Список средних процентных соотношений
-        Msg("Percent same:");
-        int meanLength = 0;
-
-        // Поиск максимального процента сходства для каждого слова
-        for (int i = 0; i < words.Count(); i++)
-        {
-            for (int j = 0; j < filterAnswer.Length; j++)
-            {
-                double meanWord = Math.MeanVector(words[i].vector, filterAnswer[j]);
-                meanPercent[0][meanLength] = meanWord; // Среднее сходство
-                meanPercent[1][meanLength] = i; // Индекс слова
-                meanPercent[2][meanLength] = j; // Индекс ответа
-                meanLength++;
-
-                Msg($"{words[i].token} number {j} — {string.Join(" ", Math.Round(filterAnswer[j]))}. {Math.Round(meanWord * 100)}%");
-            }
-        }
-
-        double veryMaxMean = 1 - Math.Max(meanPercent[0]);
-
-        // Сбор наилучших соответствий
-        double[][] meanPercentMax = Init.Double<double>(3, meanPercent[0].Length);
-        for (int i = 0; i < meanPercent[0].Length; i++)
-        {
-            int maxIndex = Array.IndexOf(meanPercent[0], Math.Max(meanPercent[0]));
-
-            meanPercentMax[0][i] = meanPercent[0][maxIndex];
-            meanPercentMax[1][i] = meanPercent[1][maxIndex];
-            meanPercentMax[2][i] = meanPercent[2][maxIndex];
-
-            meanPercent[0][maxIndex] = 0;
-        }
-
-        CheckIt("MEAN PERCENT MAX", meanPercentMax[0]);
-
-        int newLength = 0;
-        for (int i = 0; i < meanPercentMax[0].Length; i++)
-        {
-            if (meanPercentMax[0][i] > 0.02 && meanPercentMax[0][i] + veryMaxMean >= percent)
-            {
-                meanPercentMax[0][i] = meanPercentMax[0][i];
-                newLength++;
-            }
-            else
-            {
-                meanPercentMax[0][i] = 0;
-            }
-            meanPercentMax[1][i] = meanPercentMax[1][i];
-            meanPercentMax[2][i] = meanPercentMax[2][i];
-        }
-
-        //Новый размер
-        int indexMax = 0;
-        double[][] meanPercentFinal = Init.Double<double>(3, newLength); // dotnet build -c Release
-        for (int i = 0; i < meanPercentMax[0].Length; i++)
-        {
-            if (meanPercentMax[0][i] > 0)
-            {
-                meanPercentFinal[0][indexMax] = meanPercentMax[0][i];
-                meanPercentFinal[1][indexMax] = meanPercentMax[1][i];
-                meanPercentFinal[2][indexMax] = meanPercentMax[2][i];
-                indexMax++;
-            }
-        }
-
-        // Сбор наилучших соответствий
-        double[][] meanSortedFinal = Init.Double<double>(3, meanPercentFinal[2].Length);
-        for (int i = 0; i < meanPercentFinal[2].Length; i++)
-        {
-            int maxIndex = Array.IndexOf(meanPercentFinal[2], Math.Min(meanPercentFinal[2]));
-
-            meanSortedFinal[0][i] = meanPercentFinal[0][maxIndex];
-            meanSortedFinal[1][i] = meanPercentFinal[1][maxIndex];
-            meanSortedFinal[2][i] = meanPercentFinal[2][maxIndex];
-
-            meanPercentFinal[2][maxIndex] = double.PositiveInfinity;
-        }
-
-        return (meanSortedFinal[0], Math.RoundInt(meanSortedFinal[1]), Math.RoundInt(meanSortedFinal[2])); //Round нужен для перевода double в int
     }
 
     public static string[] Post(double[] percentMean, int[] indexWords, int[] indexAnswer, double[][] questVector)
@@ -289,31 +199,35 @@ static class NAnalis
 
         Line($"Ответ: {string.Join(" ", finallyAnswer)}");
 
+        // Дебажинг
 
         double[][]? predict = Predict(questVector);
-        if(predict == null) return finallyAnswer;
+
+        if(predict == null)
+            return finallyAnswer; // Если вообще нету ответа
+
+        // Отрезаем ненужные пустоты из predict
         double[][] predictSeparate = Math.Filter(predict, Init.Full(0.0, dimension), Init.Full(0.5, dimension));
 
 
-        Msg("Try liken it with this:");
+        Msg("Попробуй сравнить с этим:");
             
-        Msg("Vectors words:");
+        Msg("Эмбеддинги слов:");
         for (int i = 0; i < words.Count(); i++)
             Msg($"    {words[i].token}: {string.Join(" ", Math.Round(words[i].vector))}");
-        Msg($"Number words from Library: {words.Count()}/{words.Length}");
+        Msg($"Номер слова: {words.Count()}/{words.Length}");
 
 
-        Msg("\nPersent same:");
+        Msg("\nТакой же процент:");
         for (int i = 0; i < percentMean.Length; i++)
             Msg($"    {words[indexWords[i]].token} к {indexAnswer[i]} — {string.Join(" ", Math.Round(predictSeparate[indexAnswer[i]]))} {Math.Round(percentMean[i]) * 100}%");
         
         if (percentMean.Length <= 0)
-            Err($"CHECK IT! MEAN PERCENT VERY SMALL. mp={percentMean.Length}");
+            CheckIt("percentMean.Length <= 0", percentMean.Length);
 
 
-        Msg("\nTry liken it with this short version");
+        Msg("\nБолее короткая версия");
         Msg($"    {string.Join(' ', Math.Round(Math.Flat(predictSeparate)))}");
-        // Логи
 
 
         return finallyAnswer;

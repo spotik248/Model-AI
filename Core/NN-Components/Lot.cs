@@ -1,15 +1,13 @@
 //using System;
 
 using static Model.Write;
-using static Model.Library;
-using static Model.NManage;
 using static Model.Learn;
 
 namespace Model;
 
-public static class LLE // Layout Local Error
+public static class Lot // Lot
 {
-    public static double stud => Learn.learningRate;
+    public static double stud => lr;
     
 
     // Самый обычный слой в перцептроне
@@ -27,7 +25,7 @@ public static class LLE // Layout Local Error
         return hiddenLayout;
     }
 
-    // Возвращает локальную ошибку от следующего слоя (возможно выходного слоя)
+    // Возвращает ошибку от следующего слоя (возможно выходного слоя)
     public static double[] Error(double[] hiddenLayout, double[][] width, double[][] nextWidth, double[] nextHiddenError)
     {
         double[] hiddenError = Init.Zeros(width[0].Length); // Ошибка для нового, более раннего слоя
@@ -39,15 +37,22 @@ public static class LLE // Layout Local Error
             {
                 sumFeedback += nextHiddenError[j] * nextWidth[i][j]; 
             }
-            hiddenError[i] = sumFeedback;
+            hiddenError[i] = sumFeedback * DAct(hiddenLayout[i]);
         }
         return hiddenError;
     }
 
-    // Возвращает дельту от выходного слоя
-    public static double[] Delta(double[] outputLayout, double[] target)
+    // Выхходная ошибка
+    public static double[] ErrorOut(double[] outputLayout, double[] target)
     {
         double[] error = Vector.Sub(outputLayout, target);
+
+        return error;
+    }
+
+    // Дельта ошибки
+    public static double[] Delta(double[] error, double[] outputLayout)
+    {
         double[] delta = Vector.Mult(error, DAct(outputLayout));
 
         return delta;
@@ -69,9 +74,10 @@ public static class LLE // Layout Local Error
         return bias;
     }
 
-    
+    //
 
     private static double Act(double x) => FucAct.Sigmoid(x);
     private static double[] Act(double[] vector) => FucAct.Sigmoid(vector);
+    private static double DAct(double x) => FucAct.DSigmoid(x);
     private static double[] DAct(double[] vector) => FucAct.DSigmoid(vector);
 }

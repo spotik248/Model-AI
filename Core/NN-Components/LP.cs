@@ -1,17 +1,17 @@
 //using System;
 
 using static Model.Write;
-using static Model.Library;
-using static Model.NManage;
+using static Model.Learn;
 
 namespace Model;
 
-public class LLEP // Layout Local Error Perceptron
+public class LP : INeuroComponent // Layout of Perceptron
 {
 
-    public string name { get; set; } = "Layout Local Error Perceptron";
-    public string shortName { get; set; } = "llep";
-    public ushort count { get; set; } = 2; // ushort = 2 байта, от 0 до 65535
+    public string name { get; set; } = "Layout of Perceptron";
+    public string shortName { get; set; } = "lp";
+    public string desc { get; set; } = "Standart Layout of Perceptron";
+    public ushort count { get; set; } = 1; // ushort = 2 байта, от 0 до 65535
     public int inputSize;
     public int outputSize;
     public int Size() => (inputSize + outputSize) * count / 2;
@@ -24,12 +24,12 @@ public class LLEP // Layout Local Error Perceptron
 
     //public static double stud = 1;
 
-    public LLEP(int inputSize, int outputSize)
+    public LP(int inputSize, int outputSize)
     {
         this.inputSize = inputSize;
         this.outputSize = outputSize;
 
-        hiddenLayout ??= Init.Zeros(inputSize);
+        hiddenLayout ??= Init.Zeros(outputSize);
         width ??= Init.Xavier(inputSize, outputSize);
         bias ??= Init.Zeros(outputSize);
         
@@ -45,31 +45,36 @@ public class LLEP // Layout Local Error Perceptron
     // Самый обычный слой в перцептроне
     public double[] Pass(double[] inputLayout)
     {
-        hiddenLayout = LLE.Pass(inputLayout, width, bias);
+        hiddenLayout = Lot.Pass(inputLayout, width, bias);
         return hiddenLayout;
     }
 
     // Возвращает локальную ошибку от следующего слоя (возможно выходного слоя)
     public double[] Error(double[][] nextWidth, double[] nextHiddenError)
     {
-        return LLE.Error(hiddenLayout, width, nextWidth, nextHiddenError);
+        return Lot.Error(hiddenLayout, width, nextWidth, nextHiddenError);
+    }
+
+    public double[] ErrorOut(double[] outputLayout, double[] target)
+    {
+        return Lot.ErrorOut(outputLayout, target);
     }
 
     // Возвращает дельту от выходного слоя
     public double[] Delta(double[] outputLayout, double[] target)
     {
-        return LLE.Delta(outputLayout, target);
+        return Lot.Delta(outputLayout, target);
     }
 
     public double[][] Width(double[] inputLayout, double[] Error) // Ошибка или дельта
     {
-        width = LLE.Width(inputLayout, width, Error);
+        width = Lot.Width(inputLayout, width, Error);
         return width;
     }
 
     public double[][] Width2(double[] inputLayout, double[] Error) // Ошибка или дельта
     {
-        width = LLE.Width(inputLayout, width, Error);
+        width = Lot.Width(inputLayout, width, Error);
         
         for(int i = 0; i < width.Length; i++)
             for(int j = 0; j < width[0].Length; j++)
@@ -82,8 +87,15 @@ public class LLEP // Layout Local Error Perceptron
 
     public double[] Bias(double[] Error) // Ошибка или дельта
     {
-        bias = LLE.Bias(bias, Error);
+        bias = Lot.Bias(bias, Error);
         return bias;
+    }
+
+    public int[] GetLengthes()
+    {
+        return [
+            inputSize, outputSize, hiddenLayout.Length, width.Length, width[0].Length, bias.Length
+        ];
     }
 
 }

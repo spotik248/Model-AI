@@ -13,6 +13,7 @@ class TNN : INeuro // Transformer NeuroNetwork
     public string name { get; set; } = "Transformer NeuroNetwork";
     public string shortName { get; set; } = "tnn";
     public string desc { get; set; } = "NeuroNetwork which supposed to be transformer";
+    public bool onlyPocket { get; set; } = false;
     public ushort countLayout { get; set; } = 6; // ushort = 2 байта, от 0 до 65535
     public int sizeNN { get; set; }
     public int Size() => sizeInput + sizeMemory + sizeHidden + sizeCross + sizeSocial + sizeOutput + SizeSLP() + SizeAtt() + memory.Size();
@@ -38,13 +39,13 @@ class TNN : INeuro // Transformer NeuroNetwork
     public double[][] dOutputAttention;
 
     //Многослойный проход
-    public SLP SLPInput;
-    public SLP SLPMemory;
-    public SLP SLPHidden;
+    public DLP SLPInput;
+    public DLP SLPMemory;
+    public DLP SLPHidden;
 
-    public SLP SLPCross;
-    public SLP SLPSocial;
-    public SLP SLPOutput;
+    public DLP SLPCross;
+    public DLP SLPSocial;
+    public DLP SLPOutput;
 
     //Полносвязные слои
     public double[][] layoutInput;
@@ -131,12 +132,12 @@ class TNN : INeuro // Transformer NeuroNetwork
         layoutSocial ??= Init.Zeros(size, dimension);
         layoutOutput ??= Init.Zeros(size, dimension);
 
-        SLPInput ??= new SLP(dimension);
-        SLPMemory ??= new SLP(dimension);
-        SLPHidden ??= new SLP(dimension);
-        SLPCross ??= new SLP(dimension);
-        SLPSocial ??= new SLP(dimension);
-        SLPOutput ??= new SLP(dimension);
+        SLPInput ??= new DLP(dimension);
+        SLPMemory ??= new DLP(dimension);
+        SLPHidden ??= new DLP(dimension);
+        SLPCross ??= new DLP(dimension);
+        SLPSocial ??= new DLP(dimension);
+        SLPOutput ??= new DLP(dimension);
 
         SelfAttention ??= new Attention(size);
         SaveAttention ??= new Attention(size);
@@ -294,6 +295,9 @@ class TNN : INeuro // Transformer NeuroNetwork
         biasInput = SLPInput.Bias(biasInput);
     }
 
+    public double[][][] PredictPocket(double[][][] input) { return []; }
+    public double[][] StudyPocket(double[][][] input, double[][][] output) { return []; }
+
     private static double[] Act(double[] vector) => FucAct.Sigmoid(vector);
     private static double DAct(double x) => FucAct.DSigmoid(x);
 
@@ -365,7 +369,7 @@ class TNN : INeuro // Transformer NeuroNetwork
             {"biasInput", biasInput},
             {"biasHidden", biasHidden},
             {"biasOutput", biasOutput},
-            {"learningRate", learningRate},
+            {"lr", lr},
             {"dimension", dimension},
             {"", }
         };
@@ -385,7 +389,7 @@ class TNN : INeuro // Transformer NeuroNetwork
         biasMemory = (double[])keyValue["biasMemory"];
         biasHidden = (double[])keyValue["biasHidden"];
         biasOutput = (double[])keyValue["biasOutput"];
-        learningRate = (double)keyValue["learningRate"];
+        lr = (double)keyValue["lr"];
         dimension = (int)keyValue["dimension"];
          = (bool)keyValue[""];
     }*/

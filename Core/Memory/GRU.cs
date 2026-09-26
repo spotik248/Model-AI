@@ -10,6 +10,7 @@ class GRU : INeuroComponent
 
     public string name { get; set; } = "Gated Recurrent Units"; // Управляемые рекуррентные блоки 
     public string shortName { get; set; } = "gru";
+    public string desc { get; set; } = "Gated Recurrent Units";
     public ushort count { get; set; } = 3; // ushort = 2 байта, от 0 до 65535
     public int sizeGRU;
     public int Size() => sizeGRU * count;
@@ -179,7 +180,7 @@ class GRU : INeuroComponent
                 {"biasUpdate", biasUpdate},
                 {"biasHidden", biasHidden},
                 {"biasRestart", biasRestart},
-                {"learningRate", learningRate},
+                {"lr", lr},
                 {"dimension", dimension},
                 {"", }
             };
@@ -196,7 +197,7 @@ class GRU : INeuroComponent
         biasUpdate = (double[])keyValue["biasUpdate"];
         biasRestart = (double[])keyValue["biasRestart"];
         biasHidden = (double[])keyValue["biasHidden"];
-        learningRate = (double)keyValue["learningRate"];
+        lr = (double)keyValue["lr"];
         dimension = (int)keyValue["dimension"];
          = (bool)keyValue[""];
     }*/

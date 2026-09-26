@@ -62,7 +62,12 @@ public static class Math
       return min;
    }
 
-   public static double MinMax(double num, double min, double max)
+   public static double Clamp(double num, double min, double max) // MinMax
+   {
+      return Max(min, Min(max, num));
+   }
+
+   public static float Clamp(float num, float min, float max) // MinMax
    {
       return Max(min, Min(max, num));
    }
@@ -288,6 +293,7 @@ public static class Math
    // Override
 
    public static int[] ToInt(double[] mas) => mas.Select(x => (int)x).ToArray();
+   public static double[] ToDouble(int[] mas) => mas.Select(x => (double)x).ToArray();
 
    public static bool IsArray(object x) => x.GetType().IsArray;
 

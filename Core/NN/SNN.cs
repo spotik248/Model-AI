@@ -14,6 +14,7 @@ class SNN : INeuro // Simulating NeuroNetwork
     public string name { get; set; } = "Simulating NeuroNetwork";
     public string shortName { get; set; } = "snn";
     public string desc { get; set; } = "NeuroNetwork";
+    public bool onlyPocket { get; set; } = false;
     public ushort countLayout { get; set; } = 2; // ushort = 2 байта, от 0 до 65535
     public int sizeNN { get; set; }
     public int Size() => sizeNN * countLayout;
@@ -24,8 +25,8 @@ class SNN : INeuro // Simulating NeuroNetwork
 #pragma warning disable CS0649
 
 
-    public LLEP hidden1;
-    public LLEP hidden2;
+    public LP lp1;
+    public LP lp2;
 
 
 #pragma warning disable CS8618
@@ -40,13 +41,13 @@ class SNN : INeuro // Simulating NeuroNetwork
         int size2 = Math.Max(sizedim, (int)Math.Pow2(sizeNN)); // min500, 50*50 = 2500
 
 
-        hidden1 ??= new(sizedim, size2);
-        hidden2 ??= new(size2, sizedim);
+        lp1 ??= new(sizedim, size2);
+        lp2 ??= new(size2, sizedim);
 
 
         Msg($"Инициализация {name} закончена...");
 
-        if (hidden1 == null || hidden2 == null)
+        if (lp1 == null || lp2 == null)
             Exc($"Некоторые из данных {name} остались незаполненными!");
     }
 
@@ -57,10 +58,10 @@ class SNN : INeuro // Simulating NeuroNetwork
 
     public double[][] Predict(double[][] input) // dotnet build -c Release
     {
-        if(input.Length * input[0].Length > hidden1.inputSize * dimension)
+        if(input.Length * input[0].Length > lp1.inputSize * dimension)
             Exc("Общий размер input гораздо больше чем фиксированный общий размер size.");
 
-        if(input.Length > hidden1.inputSize)
+        if(input.Length > lp1.inputSize)
             Exc("Размер столбца input гораздо больше чем фиксированный размер столбца size.");
 
         if(input[0].Length != dimension)
@@ -73,10 +74,10 @@ class SNN : INeuro // Simulating NeuroNetwork
         Mas("inputLayout", inputLayout);
 
 
-        double[] hiddenLayout1 = hidden1.Pass(inputLayout);
+        double[] hiddenLayout1 = lp1.Pass(inputLayout);
         Mas("hiddenLayout", hiddenLayout1);
 
-        double[] outputLayout = hidden2.Pass(hiddenLayout1);
+        double[] outputLayout = lp2.Pass(hiddenLayout1);
         Mas("outputLayout", outputLayout);
 
         return Vector.ToMatrix(outputLayout, dimension);
@@ -87,7 +88,7 @@ class SNN : INeuro // Simulating NeuroNetwork
         // if(output.Length * output[0].Length > input.Length * dimension)
         //     Exc("Общий размер input гораздо больше чем фиксированный общий размер size.");
 
-        // if(input.Length > hidden1.inputSize)
+        // if(input.Length > lp1.inputSize)
         //     Exc("Размер столбца input гораздо больше чем фиксированный размер столбца size.");
 
         // if(input[0].Length != dimension)
@@ -131,21 +132,24 @@ class SNN : INeuro // Simulating NeuroNetwork
         Mas("delta", delta);
         Mas("outputLayout, DSigmoid", [outputLayout, FucAct.DSigmoid(outputLayout)]);
 
-        double[] error1 = hidden1.Error(hidden2.width, delta);
+        double[] error1 = lp1.Error(lp2.width, delta);
 
         // Движение слов в минимум ошибки
         MoveVectorWords(NAnalis.idsQuest, Vector.ToMatrix(error1, dimension));
 
-        hidden1.Width(inputLayout, error1);
-        hidden1.Bias(error1);
+        lp1.Width(inputLayout, error1);
+        lp1.Bias(error1);
 
-        hidden2.Width(hidden1.hiddenLayout, delta);
-        hidden2.Bias(delta);
+        lp2.Width(lp1.hiddenLayout, delta);
+        lp2.Bias(delta);
         
 
         Msg("### end ###");
 
         return [Vector.AddAll(error2), Vector.AddAll(error1)];
     }
+    
+    public double[][][] PredictPocket(double[][][] input) { return []; }
+    public double[][] StudyPocket(double[][][] input, double[][][] output) { return []; }
 
 }

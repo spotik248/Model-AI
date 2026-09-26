@@ -21,12 +21,15 @@ public static class NManage
     {
         size = sizelayout;
 
-        // L, F, V, T
+        // L, E, F, V, T
         nn = [
-            new LNN(size/2), // Рабочая    // 75 => 750 => 75
-            new FNN(size/5), // Недоделана
-            new VNN(size),   // Сломано
-            new TNN(size)    // Недоделана
+            new ENN(size/10),  // Рабочая    // 100 => 400 => 100
+            new PNN(size/2),   // Рабочая    // 75 => 750 => 75
+            new SMNN(size/10), // Рабочая    // 100 => 400 => 100 // Сломана 25.09.26
+            new SNN(size/10),  // Рабочая    // 100 => 400 => 100
+            new FNN(size/5),   // Недоделана
+            new VNN(size),     // Сломано
+            new TNN(size)      // Недоделано
         ];
 
         Change(0);

@@ -1,4 +1,5 @@
 //using System;
+using ArrayFire;
 
 using static Model.Write;
 
@@ -11,7 +12,8 @@ public static class Test
         TestMath,
         TestSound,
         TestMassive,
-        TestWords
+        TestWords,
+        TestGPU
     ];
     private static bool testmode = false;
     
@@ -105,6 +107,41 @@ public static class Test
     {
         Word a = new("apple", [1, 2, 3]);
         CheckIt("a to string", a.ToString());
+    }
+
+    public static void TestGPU()
+    {
+        try
+        {
+            // 1. Инициализация в вашем стиле (UPPERCASE)
+            Device.SetBackend(Backend.OPENCL); 
+            
+            Console.WriteLine("ArrayFire успешно переключен на OpenCL!");
+
+            // -------------------------------------------------------------
+            // Задача 1: Перенос данных с CPU на GPU и их сложение
+            // -------------------------------------------------------------
+            double[] cpuA = [1.0, 2.0, 3.0, 4.0];
+            double[] cpuB = [10.0, 20.0, 30.0, 40.0];
+
+            // В старых версиях класс может называться Array (с заглавной) или AfArray.
+            // Попробуйте один из вариантов ниже:
+            var gpuA = Data.CreateArray(cpuA); // Или new AfArray(...)
+            var gpuB = Data.CreateArray(cpuB);
+
+            // Пробуем сложение через перегруженный оператор
+            var gpuResultSum = gpuA + gpuB;
+
+            Console.WriteLine("--- Результат сложения ---");
+            ArrayFire.Util.Print(gpuResultSum);
+
+            
+
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Ошибка: {ex.Message}");
+        }
     }
 
 }
